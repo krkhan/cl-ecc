@@ -1,12 +1,9 @@
-(load "load.lisp")
+;;;; test.lisp
 
-(use-package :common-lisp)
-(use-package :ecrypto)
-(use-package :ecc)
-(use-package :mod)
+(in-package #:cl-ecc)
 
-(defvar *tests-list* '())
-(defvar *passed-tests* '())
+(defparameter *tests-list* '())
+(defparameter *passed-tests* '())
 
 (defmacro def-positive-test (funcname args &body body)
   (let ((ex (gensym)))
@@ -19,7 +16,8 @@
              (format t "--- ~a passed~%~%" ',funcname)
              (push ',funcname *passed-tests*))
            (error (,ex)
-             (format t "!!! ~a failed: caught unexpected error: ~a~%~%" ',funcname ,ex)))))))
+             (format t "!!! ~a failed: caught unexpected error: ~a~%~%"
+                     ',funcname ,ex)))))))
 
 (defmacro def-negative-test (funcname expected-error args &body body)
   (let ((ex (gensym)))
@@ -29,9 +27,11 @@
          (handler-case
            (progn
              ,@body
-             (format t "!!! ~a failed: did not catch expected error~%~%" ',funcname))
+             (format t "!!! ~a failed: did not catch expected error~%~%"
+                     ',funcname))
            (,expected-error (,ex)
-             (format t "--- ~a passed -- caught expected error: ~a~%~%" ',funcname ,ex)
+             (format t "--- ~a passed -- caught expected error: ~a~%~%"
+                     ',funcname ,ex)
              (push ',funcname *passed-tests*)))))))
 
 (defun run-tests ()
@@ -67,7 +67,9 @@
         (make-instance 'Point :x 30 :y 30)))))
 
 (def-positive-test test-Curve-constructor ()
-  (make-instance 'Curve :a 10 :b 20 :p 30 :g (make-instance 'Point :x 10 :y 20) :n 40))
+  (make-instance 'Curve :a 10 :b 20 :p 30 :g (make-instance 'Point
+                                                            :x 10
+                                                            :y 20) :n 40))
 
 (def-negative-test test-Curve-constructor-error invalid-type-error ()
   (make-instance 'Curve :a 10 :b 20 :p 30 :g 0 :n 40))
@@ -76,7 +78,8 @@
   (valid-curve-p *nistp192-curve*))
 
 (def-negative-test test-Curve-validity-error simple-error ()
-  (valid-curve-p (make-instance 'Curve :a 10 :b 50 :p 30 :g (make-instance 'Point :x 10 :y 20) :n 40)))
+  (valid-curve-p (make-instance 'Curve :a 10 :b 50 :p 30
+                                :g (make-instance 'Point :x 10 :y 20) :n 40)))
 
 (def-positive-test test-Point-on-Curve-p ()
   (let* ((c *nistp192-curve*))
@@ -124,7 +127,9 @@
   (let* ((c *p17-curve*)
          (cur-point *p17-gen*))
     (dolist (ref-point-coords *p17-points*)
-      (assert (point-equalp cur-point (make-instance 'Point :x (first ref-point-coords) :y (second ref-point-coords))))
+      (assert (point-equalp cur-point (make-instance
+                                       'Point :x (first ref-point-coords)
+                                              :y (second ref-point-coords))))
       (setf cur-point (add-points c *p17-gen* cur-point))
       (assert (point-on-curve-p c cur-point)))))
 
@@ -139,8 +144,9 @@
            (p-result (mul-point c *p17-gen* i)))
       (assert (point-equalp
                 p-result
-                (make-instance 'Point :x (first ref-point-coords) :y (second ref-point-coords))))))
-  
+                (make-instance 'Point :x (first ref-point-coords)
+                                      :y (second ref-point-coords))))))
+
   (loop for k being the hash-keys in *nistp192-mulpoints* using (hash-value v) do
     (assert (point-equalp (mul-point *nistp192-curve* *nistp192-gen* k) v))))
 
@@ -184,10 +190,12 @@
   (dolist (test *nistp192-ecdsa-tests*)
     (let* ((c *nistp192-curve*)
            (priv (gethash "d" test))
-           (pub (make-instance 'Point :x (gethash "pub-x" test) :y (gethash "pub-y" test)))
+           (pub (make-instance 'Point :x (gethash "pub-x" test)
+                                      :y (gethash "pub-y" test)))
            (msghash (gethash "msghash" test))
            (k (gethash "k" test))
-           (sig (make-instance 'ECDSASig :s (gethash "s" test) :r (gethash "r" test))))
+           (sig (make-instance 'ECDSASig :s (gethash "s" test)
+                                         :r (gethash "r" test))))
       (assert (point-equalp pub (ecdh-gen-pub c priv)))
       (assert (sig-equalp sig (ecdsa-gen-sig c msghash priv k)))
       (ecdsa-verify-sig c msghash sig pub))))

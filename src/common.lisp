@@ -1,4 +1,6 @@
-(in-package :ecrypto)
+;;;; common.lisp
+
+(in-package #:cl-ecc.common)
 
 (defmacro define-ecc-error (error-name)
   (let ((object (gensym))
@@ -21,4 +23,13 @@
            (setf ,accessor (nth ,i ',typespeclist))
            (setf ,typename (nth (1+ ,i) ',typespeclist))
            (unless (typep (funcall ,accessor object) ,typename)
-             (error 'invalid-type-error :msg (format nil "~a must be of type ~a instead of ~a" ,accessor ,typename (type-of (funcall ,accessor object)))))))))
+             (error 'invalid-type-error
+                    :msg (format nil "~a must be of type ~a instead of ~a"
+                                 ,accessor
+                                 ,typename
+                                 (type-of (funcall ,accessor object)))))))))
+
+;; Errors
+
+(define-ecc-error invalid-operation-error)
+(define-ecc-error invalid-type-error)

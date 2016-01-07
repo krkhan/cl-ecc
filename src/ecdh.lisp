@@ -1,4 +1,6 @@
-(in-package :ecc)
+;;;; ecdh.lisp
+
+(in-package #:cl-ecc.ecdh)
 
 (defmethod ecdh-gen-pub ((c Curve) (priv integer))
   (assert (and (< 0 priv) (< priv (n c))))

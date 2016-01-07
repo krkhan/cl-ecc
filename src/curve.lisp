@@ -1,16 +1,49 @@
-(in-package :ecc)
-  
-(defclass Curve ()
-  ((a :accessor a :initarg :a)
-   (b :accessor b :initarg :b)
-   (p :accessor p :initarg :p)
-   (g :accessor g :initarg :g)
-   (n :accessor n :initarg :n)))
+;;;; curve.lisp
 
-(validate-accessor-types Curve a integer b integer p integer g Point n integer)
+(in-package #:cl-ecc.curve)
+
+;; Point Structures
+
+(def-exporting-class Point ()
+  ((x :accessor x :initarg :x :initform 0 :export t)
+   (y :accessor y :initarg :y :initform 0 :export t)))
+
+(validate-accessor-types Point x integer y integer)
+
+;; using defconstant was uncompatible with sbcl
+(defvar *inf-point* (make-instance 'Point :x 0 :y 0))
+
+(defmethod point-equalp ((p1 Point) (p2 Point))
+  (and
+    (= (x p1) (x p2))
+    (= (y p1) (y p2))))
+
+(defmethod print-object ((p Point) out)
+  (when (point-equalp p *inf-point*)
+    (format out "<Point At Infinity>")
+    (return-from print-object))
+  (format out "<Point (~x, ~x)>" (x p) (y p)))
+
+
+;; Curve Structures
+
+(def-exporting-class Curve ()
+  ((a :accessor a :initarg :a :export t)
+   (b :accessor b :initarg :b :export t)
+   (p :accessor p :initarg :p :export t)
+   (g :accessor g :initarg :g :export t)
+   (n :accessor n :initarg :n :export t)))
+
+(validate-accessor-types Curve
+                         a integer
+                         b integer
+                         p integer
+                         g Point
+                         n integer)
 
 (defmethod print-object ((c Curve) out)
-  (format out "<Curve a:~a b:~a p:~a g:~a n:~a>" (a c) (b c) (p c) (g c) (n c)))
+  (format out "<Curve a:~a b:~a p:~a g:~a n:~a>"
+          (a c) (b c) (p c) (g c) (n c)))
 
 (defmethod valid-curve-p ((c Curve))
   (assert (and
@@ -72,7 +105,7 @@
             (not (= (y p1) (y p2)))
             (= (y p1) 0)))
     (return-from add-points *inf-point*))
-  
+
   (let (s result-x result-y)
     (if (= (x p1) (x p2))
       (setf s

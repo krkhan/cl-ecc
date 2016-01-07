@@ -1,4 +1,7 @@
-(in-package :ecc)
+;;;; ecdsa.lisp
+;;;;
+
+(in-package #:cl-ecc.ecdsa)
 
 (defclass ECDSASig ()
   ((r :initarg :r :accessor r)
@@ -34,4 +37,4 @@
               c
               (mul-point c (g c) u1)
               (mul-point c pub u2))))
-    (assert (= (mod (x p) (n c)) (r sig))))) 
+    (assert (= (mod (x p) (n c)) (r sig)))))
