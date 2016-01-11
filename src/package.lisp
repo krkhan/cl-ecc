@@ -4,11 +4,14 @@
   (:use :cl)
   (:export :invalid-operation-error
            :invalid-type-error
-           :validate-accessor-types))
+           :validate-accessor-types
+           :export-pack-symbols
+           :export-all-symbols))
 
 (defpackage #:cl-utils-clos
   (:use :cl)
   (:export :def-exporting-class))
+
 
 (defpackage #:cl-ecc.math-mod
   (:use #:cl
@@ -38,6 +41,10 @@
            :mul-point
            :order-of-point))
 
+(defpackage #:cl-ecc.curve-parameters
+  (:use #:cl
+        #:cl-ecc.curve))
+
 (defpackage #:cl-ecc.ecdh
   (:use #:cl
         #:cl-ecc.math-mod
@@ -56,6 +63,7 @@
 
 (defpackage #:cl-ecc.ecdsa
   (:use #:cl
+        #:cl-utils-clos
         #:cl-ecc.curve
         #:cl-ecc.math-mod)
   (:export :ECDSASig
@@ -71,4 +79,5 @@
         #:cl-ecc.curve
         #:cl-ecc.ecdh
         #:cl-ecc.elgamal
-        #:cl-ecc.ecdsa))
+        #:cl-ecc.ecdsa
+        #:cl-ecc.curve-parameters))

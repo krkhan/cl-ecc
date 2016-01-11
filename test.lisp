@@ -2,41 +2,7 @@
 
 (in-package #:cl-ecc)
 
-(defparameter *tests-list* '())
-(defparameter *passed-tests* '())
-
-(defmacro def-positive-test (funcname args &body body)
-  (let ((ex (gensym)))
-    `(progn
-       (push ',funcname *tests-list*)
-       (defmethod ,funcname ,args
-         (handler-case
-           (progn
-             ,@body
-             (format t "--- ~a passed~%~%" ',funcname)
-             (push ',funcname *passed-tests*))
-           (error (,ex)
-             (format t "!!! ~a failed: caught unexpected error: ~a~%~%"
-                     ',funcname ,ex)))))))
-
-(defmacro def-negative-test (funcname expected-error args &body body)
-  (let ((ex (gensym)))
-    `(progn
-       (push ',funcname *tests-list*)
-       (defmethod ,funcname ,args
-         (handler-case
-           (progn
-             ,@body
-             (format t "!!! ~a failed: did not catch expected error~%~%"
-                     ',funcname))
-           (,expected-error (,ex)
-             (format t "--- ~a passed -- caught expected error: ~a~%~%"
-                     ',funcname ,ex)
-             (push ',funcname *passed-tests*)))))))
-
-(defun run-tests ()
-  (dolist (test (reverse *tests-list*))
-    (funcall test)))
+;; non curve dependant tests
 
 (def-positive-test test-mod ()
   (let* ((a 2)
@@ -74,25 +40,37 @@
 (def-negative-test test-Curve-constructor-error invalid-type-error ()
   (make-instance 'Curve :a 10 :b 20 :p 30 :g 0 :n 40))
 
-(def-positive-test test-Curve-validity ()
+
+
+;; Curve dependant tests
+
+(def-positive-test test-Curve-validity-nistp192 ()
   (valid-curve-p *nistp192-curve*))
+
+(def-positive-test test-Curve-validity-secp256k1 ()
+  (valid-curve-p *secp256k1-curve*))
 
 (def-negative-test test-Curve-validity-error simple-error ()
   (valid-curve-p (make-instance 'Curve :a 10 :b 50 :p 30
                                 :g (make-instance 'Point :x 10 :y 20) :n 40)))
 
-(def-positive-test test-Point-on-Curve-p ()
+(def-positive-test test-Point-on-Curve-nistp192-p ()
   (let* ((c *nistp192-curve*))
     (assert (point-on-curve-p c *nistp192-gen*))
     (assert (point-on-curve-p c *inf-point*))))
 
-(def-positive-test test-calculate-Points-on-Curve ()
+(def-positive-test test-Point-on-Curve-secp256k1-p ()
+  (let* ((c *secp256k1-curve*))
+    (assert (point-on-curve-p c *secp256k1-gen*))
+    (assert (point-on-curve-p c *inf-point*))))
+
+(def-positive-test test-calculate-Points-on-Curve-p17 ()
   (dolist (point *p17-points*)
     (let ((c *p17-curve*))
       (multiple-value-bind (y yinv) (at-x c (first point))
         (assert (or (= y (second point)) (= yinv (second point))))))))
 
-(def-positive-test test-Point-Inverse ()
+(def-positive-test test-Point-Inverse-p17 ()
   (let* ((c *p17-curve*)
          (p (make-instance 'Point :x 5 :y 1))
          (pinv (point-inverse c p)))
@@ -133,22 +111,30 @@
       (setf cur-point (add-points c *p17-gen* cur-point))
       (assert (point-on-curve-p c cur-point)))))
 
-(def-positive-test test-Point-multiply ()
+(def-positive-test test-Point-multiply-p17 ()
   (let* ((c *p17-curve*)
          (p-result (mul-point c *p17-gen* 0)))
       (assert (point-equalp p-result *inf-point*)))
 
-  (loop for i from 1 to 18 do
-    (let* ((c *p17-curve*)
-           (ref-point-coords (nth (1- i) *p17-points*))
-           (p-result (mul-point c *p17-gen* i)))
-      (assert (point-equalp
-                p-result
-                (make-instance 'Point :x (first ref-point-coords)
-                                      :y (second ref-point-coords))))))
+  (loop for i from 1 to 18
+     do
+       (let* ((c *p17-curve*)
+              (ref-point-coords (nth (1- i) *p17-points*))
+              (p-result (mul-point c *p17-gen* i)))
+         (assert (point-equalp
+                  p-result
+                  (make-instance 'Point :x (first ref-point-coords)
+                                        :y (second ref-point-coords)))))))
 
-  (loop for k being the hash-keys in *nistp192-mulpoints* using (hash-value v) do
-    (assert (point-equalp (mul-point *nistp192-curve* *nistp192-gen* k) v))))
+(def-positive-test test-Point-multiply-nistp192 ()
+    (loop for k being the hash-keys in *nistp192-mulpoints* using (hash-value v)
+       do
+         (assert (point-equalp (mul-point *nistp192-curve* *nistp192-gen* k) v))))
+
+(def-positive-test test-Point-multiply-secp256k1 ()
+    (loop for k being the hash-key in *secp256k1-mulpoints* using (hash-value v)
+       do
+         (assert (point-equalp (mul-point *secp256k1-curve* *secp256k1-gen* k) v))))
 
 (def-positive-test test-Point-order ()
   (let* ((c *p17-curve*)
@@ -177,7 +163,7 @@
          (decrypted (elgamal-decrypt c encrypted bob-priv)))
     (assert (point-equalp plaintext decrypted))))
 
-(def-positive-test test-ecdsa ()
+(def-positive-test test-ecdsa-p17 ()
   (let* ((c *p17-curve*)
          (bob-priv 3)
          (bob-pub (ecdh-gen-pub c bob-priv))
@@ -185,10 +171,25 @@
          (k 7)
          (sig (ecdsa-gen-sig c msghash bob-priv k)))
     (assert (sig-equalp sig (make-instance 'ECDSASig :r 0 :s 12)))
-    (ecdsa-verify-sig c msghash sig bob-pub))
+    (ecdsa-verify-sig c msghash sig bob-pub)))
 
+(def-positive-test test-ecdsa-nistp192 ()
   (dolist (test *nistp192-ecdsa-tests*)
     (let* ((c *nistp192-curve*)
+           (priv (gethash "d" test))
+           (pub (make-instance 'Point :x (gethash "pub-x" test)
+                                      :y (gethash "pub-y" test)))
+           (msghash (gethash "msghash" test))
+           (k (gethash "k" test))
+           (sig (make-instance 'ECDSASig :s (gethash "s" test)
+                                         :r (gethash "r" test))))
+      (assert (point-equalp pub (ecdh-gen-pub c priv)))
+      (assert (sig-equalp sig (ecdsa-gen-sig c msghash priv k)))
+      (ecdsa-verify-sig c msghash sig pub))))
+
+(def-positive-test test-ecdsa-secp256k1 ()
+  (dolist (test *secp256k1-ecdsa-tests*)
+    (let* ((c *secp256k1-curve*)
            (priv (gethash "d" test))
            (pub (make-instance 'Point :x (gethash "pub-x" test)
                                       :y (gethash "pub-y" test)))

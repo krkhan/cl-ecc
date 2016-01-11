@@ -3,9 +3,10 @@
 
 (in-package #:cl-ecc.ecdsa)
 
-(defclass ECDSASig ()
-  ((r :initarg :r :accessor r)
-   (s :initarg :s :accessor s)))
+
+(def-exporting-class ECDSASig ()
+  ((r :initarg :r :accessor r :export t)
+   (s :initarg :s :accessor s :export t)))
 
 (defmethod sig-equalp ((s1 ECDSASig) (s2 ECDSASig))
   (and (= (r s1) (r s2))

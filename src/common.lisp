@@ -29,6 +29,23 @@
                                  ,typename
                                  (type-of (funcall ,accessor object)))))))))
 
+(defmacro export-pack-symbols (pack-name)
+  (let ((pack (gensym))
+        (pack-key (gensym)))
+    `(let ((,pack-key ,pack-name))
+       (let ((,pack (find-package ,pack-key)))
+         (do-all-symbols (sym ,pack)
+           (when (eql (symbol-package sym) ,pack) (export sym)))))))
+
+(defmacro export-all-symbols (pack-name)
+  (let ((pack (gensym))
+        (pack-key (gensym)))
+    `(let ((,pack-key ,pack-name))
+       (let ((,pack (find-package ,pack-key)))
+         (do-all-symbols (sym ,pack) (export sym))))))
+
+
+
 ;; Errors
 
 (define-ecc-error invalid-operation-error)

@@ -5,14 +5,10 @@
   :description "Describe cl-ecc here"
   :author "krkhan"
   :license "Specify license here"
-  :serial t
   :components ((:module "src"
+                        :serial t
                         :components
                         ((:file "package")
-                         (:file "ecc"
-                                :depends-on ("common"
-                                             "math-mod"
-                                             "curve"))
                          (:file "utils-clos")
                          (:file "common")
                          (:file "math-mod"
@@ -29,5 +25,16 @@
                          (:file "ecdsa"
                                 :depends-on ("curve"
                                              "math-mod"))
-                         (:file "constants"
-                                :depends-on ("curve"))))))
+                         (:file "ecc"
+                                :depends-on ("common"
+                                             "math-mod"
+                                             "curve"))))
+               (:module "curves"
+                        :depends-on (src)
+                        :components
+                        #.(mapcar #'(lambda (p)
+                                      (list :file (pathname-name p)))
+                                  (uiop:directory-files
+                                   (merge-pathnames "curves/"
+                                                    *default-pathname-defaults*)
+                                   "*.lisp")))))

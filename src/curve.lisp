@@ -22,7 +22,7 @@
   (when (point-equalp p *inf-point*)
     (format out "<Point At Infinity>")
     (return-from print-object))
-  (format out "<Point (~x, ~x)>" (x p) (y p)))
+  (format out "<Point~%~tx:~x~%~ty:~x>" (x p) (y p)))
 
 
 ;; Curve Structures
@@ -42,12 +42,12 @@
                          n integer)
 
 (defmethod print-object ((c Curve) out)
-  (format out "<Curve a:~a b:~a p:~a g:~a n:~a>"
+  (format out "<Curve ~%a:~a~%b:~a~%p:~a~%g:~a~%n:~a~%>"
           (a c) (b c) (p c) (g c) (n c)))
 
 (defmethod valid-curve-p ((c Curve))
   (assert (and
-            (< 0 (a c))
+            (<= 0 (a c))
             (< (a c) (p c))
             (< 0 (b c))
             (< (b c) (p c))

@@ -40,7 +40,7 @@
    Is more efficient than egcd()"
   (if (zerop b) (return-from egcd2 (values 1 0)))
   (multiple-value-bind (q r) (floor a b)
-    (multiple-value-bind (s v) (extended-gcd b r)
+    (multiple-value-bind (s v) (egcd2 b r)
       (values v (- s (* q v))))))
 
 (defun inv-mod (a n)
