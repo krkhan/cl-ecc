@@ -5,6 +5,7 @@
   :description "Describe cl-ecc here"
   :author "krkhan"
   :license "Specify license here"
+  :depends-on (:ironclad)
   :components ((:module "src"
                         :serial t
                         :components
