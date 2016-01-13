@@ -1,6 +1,6 @@
 ;;;; util-clos.lisp
 
-(in-package #:cl-utils-clos)
+(in-package #:cl-ecc)
 
 
 ;; Macro for exporting defining a class AND exporting accessor functions

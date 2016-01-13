@@ -1,6 +1,6 @@
 ;;;; math-mod.lisp
 
-(in-package #:cl-ecc.math-mod)
+(in-package #:cl-ecc)
 
 (defun add-mod (&rest args)
   "Returns: arg1 + arg2 + ... + arg(n-1) (mod n)"

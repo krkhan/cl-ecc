@@ -1,6 +1,12 @@
 ;;;; ecdh.lisp
 
-(in-package #:cl-ecc.ecdh)
+(in-package #:cl-ecc)
+
+(defgeneric ecdh-gen-pub (curve priv-key)
+  (:documentation "Result: a 'Point."))
+
+(defgeneric ecdh-gen-secret (curve my-priv partner-pub)
+  (:documentation "Result: a 'Point."))
 
 (defmethod ecdh-gen-pub ((c Curve) (priv integer))
   (assert (and (< 0 priv) (< priv (n c))))

@@ -1,6 +1,6 @@
 ;;;; common.lisp
 
-(in-package #:cl-ecc.common)
+(in-package #:cl-ecc)
 
 (defmacro define-ecc-error (error-name)
   (let ((object (gensym))

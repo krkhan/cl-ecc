@@ -1,17 +1,45 @@
 ;;;; curve.lisp
 
-(in-package #:cl-ecc.curve)
+(in-package #:cl-ecc)
 
-;; Point Structures
+;; Generics
 
-(def-exporting-class Point ()
-  ((x :accessor x :initarg :x :initform 0 :export t)
-   (y :accessor y :initarg :y :initform 0 :export t)))
+(defgeneric point-equalp (pt1 pt2)
+  (:documentation "Result: Predicate. Compares two points structures"))
+
+(defgeneric valid-curve-p (curve)
+  (:documentation "Result: Predicate. Test if ec curve is valid by params"))
+
+(defgeneric point-on-curve-p (curve pt)
+  (:documentation "Result: Predicate. Test if a given point is valid on the given curve"))
+
+(defgeneric at-x (curve x)
+  (:documentation "NEED TO CHECK"))
+
+(defgeneric point-inverse (curve pt)
+  (:documentation "Result: a 'Point. Y coordinates inverted over x-axis"))
+
+(defgeneric add-points (curve pt1 pt2)
+  (:documentation "Result: a 'Point. Addition of 2 Points on a Curve"))
+
+(defgeneric mul-point (curve pt int)
+  (:documentation "Result: a 'Point. Multiplication of 2 Points on a Curve"))
+
+(defgeneric order-of-point (curve pt)
+  (:documentation "Return: integer. Order of a Point on a Curve"))
+
+
+;; Point classes and methods
+
+(defclass Point ()
+  ((x :accessor x :initarg :x :initform 0)
+   (y :accessor y :initarg :y :initform 0)))
 
 (validate-accessor-types Point x integer y integer)
 
-;; using defconstant was uncompatible with sbcl
+;; Infinity point
 (defvar *inf-point* (make-instance 'Point :x 0 :y 0))
+
 
 (defmethod point-equalp ((p1 Point) (p2 Point))
   (and
@@ -25,14 +53,14 @@
   (format out "<Point~%~tx:~x~%~ty:~x>" (x p) (y p)))
 
 
-;; Curve Structures
+;; Curve classes and methods
 
-(def-exporting-class Curve ()
-  ((a :accessor a :initarg :a :export t)
-   (b :accessor b :initarg :b :export t)
-   (p :accessor p :initarg :p :export t)
-   (g :accessor g :initarg :g :export t)
-   (n :accessor n :initarg :n :export t)))
+(defclass Curve ()
+  ((a :accessor a :initarg :a)
+   (b :accessor b :initarg :b)
+   (p :accessor p :initarg :p)
+   (g :accessor g :initarg :g)
+   (n :accessor n :initarg :n)))
 
 (validate-accessor-types Curve
                          a integer
@@ -40,6 +68,7 @@
                          p integer
                          g Point
                          n integer)
+
 
 (defmethod print-object ((c Curve) out)
   (format out "<Curve ~%a:~a~%b:~a~%p:~a~%g:~a~%n:~a~%>"

@@ -1,12 +1,21 @@
 ;;;; ecdsa.lisp
 ;;;;
 
-(in-package #:cl-ecc.ecdsa)
+(in-package #:cl-ecc)
 
+(defclass ECDSASig ()
+  ((r :initarg :r :accessor r)
+   (s :initarg :s :accessor s)))
 
-(def-exporting-class ECDSASig ()
-  ((r :initarg :r :accessor r :export t)
-   (s :initarg :s :accessor s :export t)))
+(defgeneric sig-equal-p (sig1 sig2)
+  (:documentation "Returns: Predicate. Test if two ECDSASig are equal"))
+
+(defgeneric ecdsa-gen-sig (curve msghash priv int)
+  (:documentation "Returns: 'ECDSASig."))
+
+(defgeneric ecdsa-verify-sig (curve msghash priv int)
+  (:documentation "Returns: Predicate. Test if signature is valid"))
+
 
 (defmethod sig-equalp ((s1 ECDSASig) (s2 ECDSASig))
   (and (= (r s1) (r s2))

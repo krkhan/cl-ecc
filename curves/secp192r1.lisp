@@ -1,13 +1,13 @@
 ;;;; secp192r1.lisp
 
-(in-package #:cl-ecc.curve-parameters)
+(in-package #:cl-ecc)
 
 (defvar *secp192r1-gen* (make-instance
                         'Point
                         :x #x188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012
                         :y #x07192b95ffc8da78631011ed6b24cdd573f977a11e794811))
 
-(defvar *secp192r1-curve*
+(defvar *secp192r1*
   (make-instance
     'Curve
     :a 6277101735386680763835789423207666416083908700390324961276
@@ -15,6 +15,3 @@
     :p 6277101735386680763835789423207666416083908700390324961279
     :g *secp192r1-gen*
     :n 6277101735386680763835789423176059013767194773182842284081))
-
-(export '*secp192r1-gen*)
-(export '*secp192r1-curve*)
