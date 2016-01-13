@@ -31,7 +31,10 @@
                                   (uiop:directory-files
                                    (merge-pathnames "curves/"
                                                     *default-pathname-defaults*)
-                                   "*.lisp")))))
+                                   "*.lisp"))))
+  :description "A library for use with eliptic curve cryptography.
+               NOT TESTET OR SECURE"
+  :in-order-to ((test-op (load-op cl-ecc-test))))
 
 
 (asdf:defsystem #:cl-ecc-test
@@ -53,4 +56,5 @@
                (:module "run"
                         :pathname "test"
                         :depends-on (misc-tests curve-tests)
-                        :components ((:file "cl-ecc-test")))))
+                        :components ((:file "cl-ecc-test"))))
+  :perform (load-op :after (op c) (asdf:clear-system c)))

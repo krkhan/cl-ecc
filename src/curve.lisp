@@ -11,7 +11,8 @@
   (:documentation "Result: Predicate. Test if ec curve is valid by params"))
 
 (defgeneric point-on-curve-p (curve pt)
-  (:documentation "Result: Predicate. Test if a given point is valid on the given curve"))
+  (:documentation "Result: Predicate. Test if a given point is valid on
+                   the given curve"))
 
 (defgeneric at-x (curve x)
   (:documentation "NEED TO CHECK"))
