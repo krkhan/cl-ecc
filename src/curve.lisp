@@ -29,6 +29,9 @@
 (defgeneric order-of-point (curve pt)
   (:documentation "Return: integer. Order of a Point on a Curve"))
 
+(defgeneric point->int (pt)
+  (:documentation "Return: integer. concatenate x and y coords of point into integer")
+
 
 ;; Point classes and methods
 
