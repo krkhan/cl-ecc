@@ -187,3 +187,7 @@
         result = (mul-point c pt i)
         until (point-equalp result *inf-point*)
         finally (return-from order-of-point (1- i))))
+
+(defmethod point->int ((p Point))
+  "Returns x and y coordinates of class Point as one (concatenated) integer"
+  (parse-integer (format nil "~X~X" (x p) (y p)) :radix 16))

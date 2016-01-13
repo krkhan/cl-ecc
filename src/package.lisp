@@ -11,6 +11,7 @@
            :ecdsa-gen-sig
            :ecdsa-verify-sig
            :sig-equalp
+           :ecdsa-gen-pub
 
            ;; curves
            :*p17*
