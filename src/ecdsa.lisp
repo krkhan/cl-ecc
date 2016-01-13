@@ -48,3 +48,9 @@
               (mul-point c (g c) u1)
               (mul-point c pub u2))))
     (assert (= (mod (x p) (n c)) (r sig)))))
+
+(defmethod ecdsa-gen-pub ((c Curve) (k integer))
+  "Returns: public key from private (random) integer"
+  (assert (and (< 0 k) (< k (n c))))
+  (format t "~d" *print-base*)
+  (point->int (mul-point c (g c) k)))
