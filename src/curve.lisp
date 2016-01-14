@@ -1,5 +1,64 @@
-(in-package :ecc)
-  
+;;;; curve.lisp
+
+(in-package #:cl-ecc)
+
+;; Generics
+
+(defgeneric point-equalp (pt1 pt2)
+  (:documentation "Result: Predicate. Compares two points structures"))
+
+(defgeneric valid-curve-p (curve)
+  (:documentation "Result: Predicate. Test if ec curve is valid by params"))
+
+(defgeneric point-on-curve-p (curve pt)
+  (:documentation "Result: Predicate. Test if a given point is valid on
+                   the given curve"))
+
+(defgeneric at-x (curve x)
+  (:documentation "NEED TO CHECK"))
+
+(defgeneric point-inverse (curve pt)
+  (:documentation "Result: a 'Point. Y coordinates inverted over x-axis"))
+
+(defgeneric add-points (curve pt1 pt2)
+  (:documentation "Result: a 'Point. Addition of 2 Points on a Curve"))
+
+(defgeneric mul-point (curve pt int)
+  (:documentation "Result: a 'Point. Multiplication of 2 Points on a Curve"))
+
+(defgeneric order-of-point (curve pt)
+  (:documentation "Return: integer. Order of a Point on a Curve"))
+
+(defgeneric point->int (pt)
+  (:documentation "Return: integer. concatenate x and y coords of point into integer"))
+
+
+;; Point classes and methods
+
+(defclass Point ()
+  ((x :accessor x :initarg :x :initform 0)
+   (y :accessor y :initarg :y :initform 0)))
+
+(validate-accessor-types Point x integer y integer)
+
+;; Infinity point
+(defvar *inf-point* (make-instance 'Point :x 0 :y 0))
+
+
+(defmethod point-equalp ((p1 Point) (p2 Point))
+  (and
+    (= (x p1) (x p2))
+    (= (y p1) (y p2))))
+
+(defmethod print-object ((p Point) out)
+  (when (point-equalp p *inf-point*)
+    (format out "<Point At Infinity>")
+    (return-from print-object))
+  (format out "<Point~%~tx:~x~%~ty:~x>" (x p) (y p)))
+
+
+;; Curve classes and methods
+
 (defclass Curve ()
   ((a :accessor a :initarg :a)
    (b :accessor b :initarg :b)
@@ -7,14 +66,21 @@
    (g :accessor g :initarg :g)
    (n :accessor n :initarg :n)))
 
-(validate-accessor-types Curve a integer b integer p integer g Point n integer)
+(validate-accessor-types Curve
+                         a integer
+                         b integer
+                         p integer
+                         g Point
+                         n integer)
+
 
 (defmethod print-object ((c Curve) out)
-  (format out "<Curve a:~a b:~a p:~a g:~a n:~a>" (a c) (b c) (p c) (g c) (n c)))
+  (format out "<Curve ~%a:~a~%b:~a~%p:~a~%g:~a~%n:~a~%>"
+          (a c) (b c) (p c) (g c) (n c)))
 
 (defmethod valid-curve-p ((c Curve))
   (assert (and
-            (< 0 (a c))
+            (<= 0 (a c))
             (< (a c) (p c))
             (< 0 (b c))
             (< (b c) (p c))
@@ -72,7 +138,7 @@
             (not (= (y p1) (y p2)))
             (= (y p1) 0)))
     (return-from add-points *inf-point*))
-  
+
   (let (s result-x result-y)
     (if (= (x p1) (x p2))
       (setf s
@@ -124,3 +190,7 @@
         result = (mul-point c pt i)
         until (point-equalp result *inf-point*)
         finally (return-from order-of-point (1- i))))
+
+(defmethod point->int ((p Point))
+  "Returns x and y coordinates of class Point as one (concatenated) integer"
+  (parse-integer (format nil "~X~X" (x p) (y p)) :radix 16))

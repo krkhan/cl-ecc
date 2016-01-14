@@ -1,9 +1,0 @@
-cl-ecc
-====
-
-Usage
----------
-> cd cl-ecc
->
-> clisp test.lisp
-

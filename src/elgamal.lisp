@@ -1,10 +1,20 @@
-(in-package :ecc)
+;;;; elgamal.lisp
+;;;; https://en.wikipedia.org/wiki/ElGamal_encryption
+
+(in-package #:cl-ecc)
 
 (defclass ElGamalMessage ()
   ((c1 :initarg :c1 :accessor c1)
    (c2 :initarg :c2 :accessor c2)))
 
-(defmethod elgamal-encrypt ((c Curve) (plaintext Point) (partner-pub Point) (my-priv integer))
+(defgeneric elgamal-encrypt (curve plaintext partner-pub my-priv)
+  (:documentation "Returns: 'ElGamalMessage"))
+
+(defgeneric elgamal-decrypt (curve ElGamalMessage my-priv)
+  (:documentation "Returns: a 'Point."))
+
+(defmethod elgamal-encrypt ((c Curve) (plaintext Point)
+                            (partner-pub Point) (my-priv integer))
   (assert (point-on-curve-p c plaintext))
   (assert (point-on-curve-p c partner-pub))
   (let ((my-pub (ecdh-gen-pub c my-priv)))
