@@ -15,3 +15,7 @@
     :p 6277101735386680763835789423207666416083908700390324961279
     :g *secp192r1-gen*
     :n 6277101735386680763835789423176059013767194773182842284081))
+
+;; (defclass Point-secp192k1 (Point)
+;;   ((x :accessor x :initform (make-array 64 :element-type '(unsigned-byte 8)))
+;;    (y :accessor y :initform (make-array 64 :element-type '(unsigned-byte 8)))))

@@ -13,23 +13,20 @@
 (defgeneric elgamal-decrypt (curve ElGamalMessage my-priv)
   (:documentation "Returns: a 'Point."))
 
-(defmethod elgamal-encrypt ((c Curve) (plaintext Point)
+(defmethod elgamal-encrypt ((ec Curve) (plaintext Point)
                             (partner-pub Point) (my-priv integer))
-  (assert (point-on-curve-p c plaintext))
-  (assert (point-on-curve-p c partner-pub))
-  (let ((my-pub (ecdh-gen-pub c my-priv)))
-    (make-instance
-      'ElGamalMessage
-      :c1 my-pub
-      :c2 (add-points
-            c
-            plaintext
-            (ecdh-gen-secret c my-priv partner-pub)))))
+  (assert (point-on-curve-p ec plaintext))
+  (assert (point-on-curve-p ec partner-pub))
+  (let ((my-pub (ecdh-gen-pub ec my-priv)))
+    (make-instance 'ElGamalMessage
+                   :c1 my-pub
+                   :c2 (add-points ec
+                                   plaintext
+                                   (ecdh-gen-secret ec my-priv partner-pub)))))
 
-(defmethod elgamal-decrypt ((c Curve) (m ElGamalMessage) (my-priv integer))
-  (assert (point-on-curve-p c (c1 m)))
-  (assert (point-on-curve-p c (c2 m)))
-  (add-points
-    c
-    (c2 m)
-    (point-inverse c (ecdh-gen-secret c my-priv (c1 m)))))
+(defmethod elgamal-decrypt ((ec Curve) (m ElGamalMessage) (my-priv integer))
+  (assert (point-on-curve-p ec (c1 m)))
+  (assert (point-on-curve-p ec (c2 m)))
+  (add-points ec
+              (c2 m)
+              (point-inverse ec (ecdh-gen-secret ec my-priv (c1 m)))))

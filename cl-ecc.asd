@@ -5,6 +5,10 @@
   :description "Describe cl-ecc here"
   :author "krkhan"
   :license "Specify license here"
+  :depends-on (#:ironclad
+               #:com.gigamonkeys.macro-utilities
+               #:com.gigamonkeys.binary-data
+               #:iterate)
   :components ((:module "src"
                         :components
                         ((:file "package")
@@ -24,21 +28,23 @@
                                                    "elgamal"
                                                    "ecdsa"))))
                (:module "curves"
+                        :pathname ""
                         :depends-on (src)
                         :components
-                        #.(mapcar #'(lambda (p)
-                                      (list :file (pathname-name p)))
-                                  (uiop:directory-files
-                                   (merge-pathnames "curves/"
-                                                    *default-pathname-defaults*)
-                                   "*.lisp"))))
+                        ((:file "curve-parameters")))
+               (:module "bitcoin"
+                        :depends-on (src curves)
+                        :components
+                        ((:file "bitcoin"))))
   :description "A library for use with eliptic curve cryptography.
                NOT TESTET OR SECURE"
   :in-order-to ((test-op (load-op cl-ecc-test))))
 
 
 (asdf:defsystem #:cl-ecc-test
-  :depends-on ("cl-ecc")
+  :depends-on (#:ironclad
+               #:com.gigamonkeys.binary-data
+               #:com.gigamonkeys.macro-utilities)
   :serial t
   :components ((:module "misc-tests"
                         :pathname "test"
