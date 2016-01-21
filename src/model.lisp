@@ -2,7 +2,9 @@
 
 (in-package #:cl-ecc)
 
-;;;; model.lisp
+;;;; model
+
+
 (define-binary-type u4/le ()
   (:reader (in)
            (nibbles:read-ub32/le in))
