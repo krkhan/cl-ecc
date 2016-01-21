@@ -5,7 +5,8 @@
   :description "Describe cl-ecc here"
   :author "krkhan"
   :license "Specify license here"
-  :depends-on (#:ironclad
+  :depends-on (#:alexandria
+               #:ironclad
                #:iterate
                #:nibbles
                #:com.gigamonkeys.binary-data
@@ -36,6 +37,8 @@
                                    (merge-pathnames "curves/"
                                                     *default-pathname-defaults*)
                                    "*.lisp")))
+
+
                (:module "bitcoin"
                         :depends-on (src curves)
                         :components
