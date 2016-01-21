@@ -120,7 +120,8 @@
                      (ecdsa-gen-pub *secp256k1*
                                     (ironclad:octets-to-integer privkey)))))))
 
-(define-constant +base58-alphabet+ "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" "The base58 alphabet")
+(define-constant +base58-alphabet+ "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+  "The base58 alphabet")
 
 (defmethod pubkeyhash->b58Check-string (hash)
   (let ((as-decimal (ironclad:octets-to-integer hash))
@@ -183,7 +184,7 @@
 
 ;;;;;; ROUND 1 TESTS
 (defun test-priv-read ()
-  (read-value 'blob  (known-privkey) :bytes 32)) ;; works
+  (read-value 'blob  (known-privkey-to-stream) :bytes 32)) ;; works
 
 (defun test-priv-write ()
   (let ((sout (ironclad:make-octet-output-stream)))
@@ -191,7 +192,7 @@
     (ironclad:get-output-stream-octets sout)))
 
 (defun test-pub-read (&key (format 'private))
-  (read-value 'public-key (known-privkey) :format format))
+  (read-value 'public-key (known-privkey-to-stream) :format format))
 
 (defun test-pub-write (&key (format 'flat))
   (let ((sout (ironclad:make-octet-output-stream)))
@@ -199,7 +200,7 @@
     (ironclad:get-output-stream-octets sout)))
 
 (defun test-pub-hash-read (&key format)
-  (read-value 'pub-key-hash (known-privkey) :format format))
+  (read-value 'pub-key-hash (known-privkey-to-stream) :format format))
 
 (defun test-pub-hash-write (&key (format 'flat))
   (let ((oout (ironclad:make-octet-output-stream))
@@ -211,8 +212,7 @@
         (progn
           (write-value 'pub-key-hash sout (test-pub-hash-read) :format format)
           (ironclad:get-output-stream-octets oout)))))
-(defun test-genkey-read ()
-  (gen-btc-key (known-privkey)))
+
 (defun test-round1 ()
   (progn
     (test-priv-read)

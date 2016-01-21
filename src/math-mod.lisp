@@ -29,7 +29,7 @@
   (unless (= (gcd a n) 1)
     (error 'invalid-operation-error :msg "gcd(a, n) != 1"))
 
-  (multiple-value-bind (g a b) (egcd a n)
+  (multiple-value-bind (g b a) (ironclad:egcd a n)
     (declare (ignore g a))
     (mod b n)))
 
@@ -130,7 +130,7 @@
 ;;         (b-int (ironclad:octets-to-integer b)))
 ;;     (egcd a-int b-int)))
 
-;; (defmethod egcd ((a integer) (b integer))
+;; (defmethod egcd2 ((a integer) (b integer))
 ;;   "Returns: (gcd(a, b), s, t) where gcd(a, b) = s*a + t*b"
 ;;   (let (quotient)
 ;;     (do ((s-i 0)
