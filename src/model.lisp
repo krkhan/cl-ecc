@@ -38,6 +38,7 @@
    (public-key public-key )
    (pub-key-hash pub-key-hash)))
 
+
 ;; methods
 (defmethod gen-btc-key (stream &key (ecdsa-version 04) (btc-version 00))
   (let ((pkey (nibbles:make-octet-vector 32))
