@@ -9,17 +9,16 @@
                #:iterate
                #:nibbles
                #:com.gigamonkeys.binary-data
-               #:com.gigamonkeys.macro-utilities)
+               #:com.gigamonkeys.macro-utilities
+               #:helper-library)
   :components ((:module "src"
                         :components
                         ((:file "package")
-                         (:file "utils-clos" :depends-on ("package"))
                          (:file "common" :depends-on ("package"))
                          (:file "math-mod" :depends-on ("package" "common"))
                          (:file "curve" :depends-on ("package"
                                                      "common"
-                                                     "math-mod"
-                                                     "utils-clos"))
+                                                     "math-mod"))
                          (:file "ecdh" :depends-on ("package" "curve"))
                          (:file "elgamal" :depends-on ("package" "curve" "ecdh"))
                          (:file "ecdsa" :depends-on ("package" "curve" "math-mod"))

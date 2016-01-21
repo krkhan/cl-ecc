@@ -1,7 +1,12 @@
 ;;;; package.lisp
 
 (defpackage #:cl-ecc
-  (:use #:cl #:ironclad #:nibbles #:iterate)
+  (:use #:cl
+        #:ironclad
+        #:nibbles
+        #:iterate
+        #:helper-library
+        #:com.gigamonkeys.macro-utilities)
   (:shadow :null)
   (:import-from #:com.gigamonkeys.binary-data
                 :read-value

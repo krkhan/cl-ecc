@@ -2,10 +2,48 @@
 
 (in-package #:cl-ecc)
 
-(defun add-mod (&rest args)
+
+
+(defmethod add-mod (&rest args)
   "Returns: arg1 + arg2 + ... + arg(n-1) (mod n)"
   (let ((lastindex (1- (length args))))
     (mod (apply '+ (subseq args 0 lastindex)) (nth lastindex args))))
+
+;; (define-octet-vector-version sub-mod)
+;; (define-octet-vector-version mul-mod)
+
+;; (defmethod add-mod-pair ((type (eql 'octet-array)) arg1 arg2 &key (base 256))
+;;   "Return: octet-vector. arg1 + arg2 ... + arg(n-1) (mod n)"
+;;   (let* ((carry-over 0)
+;;          (big-vector (copy-array (largest-sequence arg1 arg2) :fill-pointer t))
+;;          (small-vector (copy-array (smallest-sequence arg1 arg2) :fill-pointer t))
+;;          (diff-size (- (length big-vector) (length small-vector))))
+;;     ;; (declare (type (vector (unsigned-byte 8)) big-vector small-vector)
+;;     ;;          (ignorable diff-size))
+
+;;     (do ((counter 0 (1+ counter))
+;;          (tresult (make-array (length big-vector)
+;;                               :element-type '(unsigned-byte 8)
+;;                               :fill-pointer t
+;;                               :adjustable t))
+;;          (smallv-size (length small-vector) (1- smallv-size))
+;;          bigv-elt smallv-elt)
+;;         ((eq 0 smallv-size) (do ((counter 0 (1+ counter)))
+;;                                 ((eq counter diff-size)
+;;                                  (nreverse (copy-array tresult
+;;                                                        :element-type '(unsigned-byte 8)
+;;                                                        :fill-pointer nil
+;;                                                        :adjustable nil)))
+;;                               (multiple-value-bind (q r) (truncate (+ (vector-pop big-vector) carry-over) base)
+;;                                 (unless (eq r 0)
+;;                                   (vector-push-extend r tresult))
+;;                                 (setf carry-over q))))
+;;       (setf bigv-elt (vector-pop big-vector))
+;;       (setf smallv-elt (vector-pop small-vector))
+;;       (multiple-value-bind (q r) (truncate (+ bigv-elt smallv-elt carry-over) base)
+;;         (setf (elt tresult counter) r)
+;;         (setf carry-over q)))))
+
 
 (defun sub-mod (&rest args)
   "Returns: arg1 - arg2 - ... - arg(n-1) (mod n)"
@@ -17,22 +55,28 @@
   (let ((lastindex (1- (length args))))
     (mod (apply '* (subseq args 0 lastindex)) (nth lastindex args))))
 
-(defun egcd (a b)
-  "Returns: (gcd(a, b), s, t) where gcd(a, b) = s*a + t*b"
-  (let (quotient)
-    (do ((s-i 0)
-         (s-i-minus-1 1)
-         (t-i 1)
-         (t-i-minus-1 0)
-         (r-i (min a b))
-         (r-i-minus-1 (max a b)))
 
-        ((= r-i 0) (values r-i-minus-1 s-i-minus-1 t-i-minus-1))
+;; (defmethod egcd ((a (eql 'octet-vector)) (b (eql 'octet-vector)))
+;;   (let ((a-int (ironclad:octets-to-integer a))
+;;         (b-int (ironclad:octets-to-integer b)))
+;;     (egcd a-int b-int)))
 
-        (setf quotient (truncate (/ r-i-minus-1 r-i)))
-        (shiftf r-i-minus-1 r-i (- r-i-minus-1 (* quotient r-i)))
-        (shiftf s-i-minus-1 s-i (- s-i-minus-1 (* quotient s-i)))
-      (shiftf t-i-minus-1 t-i (- t-i-minus-1 (* quotient t-i))))))
+;; (defmethod egcd ((a integer) (b integer))
+;;   "Returns: (gcd(a, b), s, t) where gcd(a, b) = s*a + t*b"
+;;   (let (quotient)
+;;     (do ((s-i 0)
+;;          (s-i-minus-1 1)
+;;          (t-i 1)
+;;          (t-i-minus-1 0)
+;;          (r-i (min a b))
+;;          (r-i-minus-1 (max a b)))
+
+;;         ((= r-i 0) (values r-i-minus-1 s-i-minus-1 t-i-minus-1))
+
+;;         (setf quotient (truncate (/ r-i-minus-1 r-i)))
+;;         (shiftf r-i-minus-1 r-i (- r-i-minus-1 (* quotient r-i)))
+;;         (shiftf s-i-minus-1 s-i (- s-i-minus-1 (* quotient s-i)))
+;;       (shiftf t-i-minus-1 t-i (- t-i-minus-1 (* quotient t-i))))))
 
 (defun egcd2 (a b)
   "Returns: (s, t) where gcd(a, b) = s*a + t*b if a>b
@@ -43,7 +87,13 @@
     (multiple-value-bind (s v) (egcd2 b r)
       (values v (- s (* q v))))))
 
-(defun inv-mod (a n)
+
+(defmethod inv.mod ((a (eql 'octet-vector)) (n (eql 'octet-vector)))
+  (let ((a-int (ironclad:octets-to-integer a))
+        (n-int (ironclad:octets-to-integer n)))
+    (inv-mod a-int n-int)))
+
+(defmethod inv-mod ((a integer) (n integer))
   "Returns: a^-1 (mod n)
    Signals: 'invalid-operation-error if gcd(a, n) != 1"
   (unless (= (gcd a n) 1)
