@@ -1,7 +1,13 @@
 ;;;; package.lisp
 
 (defpackage #:cl-ecc
-  (:use #:cl)
+  (:use #:cl #:ironclad #:nibbles #:iterate)
+  (:shadow :null)
+  (:import-from #:com.gigamonkeys.binary-data
+                :read-value
+                :write-value
+                :define-binary-type
+                :define-binary-class)
   (:export :ecdh-gen-pub
            :ecdh-gen-secret
            :ElGamalMessage

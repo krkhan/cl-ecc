@@ -5,6 +5,11 @@
   :description "Describe cl-ecc here"
   :author "krkhan"
   :license "Specify license here"
+  :depends-on (#:ironclad
+               #:iterate
+               #:nibbles
+               #:com.gigamonkeys.binary-data
+               #:com.gigamonkeys.macro-utilities)
   :components ((:module "src"
                         :components
                         ((:file "package")
@@ -31,7 +36,11 @@
                                   (uiop:directory-files
                                    (merge-pathnames "curves/"
                                                     *default-pathname-defaults*)
-                                   "*.lisp"))))
+                                   "*.lisp")))
+               (:module "bitcoin"
+                        :depends-on (src curves)
+                        :components
+                        ((:file "model"))))
   :description "A library for use with eliptic curve cryptography.
                NOT TESTET OR SECURE"
   :in-order-to ((test-op (load-op cl-ecc-test))))

@@ -1,4 +1,8 @@
 ;;;; model.lisp
+
+(in-package #:cl-ecc)
+
+;;;; model.lisp
 (define-binary-type u4/le ()
   (:reader (in)
            (nibbles:read-ub32/le in))
@@ -33,17 +37,38 @@
    (pub-key-hash pub-key-hash)))
 
 ;; methods
-(defmethod gen-btc-key2 (stream &key (version 04))
-  (let (pkey pubkey keyhash)
-    (ironclad:digest-stream :sha256 stream)
+(defmethod gen-btc-key (stream &key (ecdsa-version 04) (btc-version 00))
+  (let ((pkey (nibbles:make-octet-vector 32))
+        pubkey keyhash
+        (sin (ironclad:make-octet-output-stream)))
+    (read-sequence pkey (ironclad:make-octet-input-stream
+                         (ironclad:digest-stream
+                          :sha256
+                          stream)))
     (assert (< (ironclad:octets-to-integer pkey)
-               (ironclad:octets-to-integer (n *secp256k1*))))
-    (setf pubkey (list version (ecdsa-gen-pub *secp256k1* pkey)))
-    (setf keyhash (ironclad:digest-sequence
-                   :sha256
-                   (ironclad:digest-sequence
-                    :ripemd160
-                    pubkey)))))
+               (n *SECP256K1*)))
+    (setf pubkey (concatenate '(vector (unsigned-byte 8))
+                              (nibbles:octet-vector ecdsa-version)
+                              (ironclad:integer-to-octets
+                               (ecdsa-gen-pub *secp256k1*
+                                              (ironclad:octets-to-integer pkey)))))
+    (setf keyhash (concatenate '(vector (unsigned-byte 8))
+                               (nibbles:octet-vector btc-version)
+                               (ironclad:digest-sequence
+                                :sha256
+                                (ironclad:digest-sequence
+                                 :ripemd-160
+                                 pubkey))))
+    (write-sequence pkey sin)
+    (write-sequence pubkey sin)
+    (write-sequence keyhash sin)
+    (read-value 'Btc-Key sin)))
+
+;; test
+
+(defun test-genkey ()
+  (gen-btc-key (ironclad:make-octet-input-stream
+                (nibbles:octet-vector 54 54 67 43))))
 
 
 
@@ -67,6 +92,8 @@
                                          :initial-element 0)))
               (read-sequence seq stream)
               seq))))
+(defun concatenate-byte-array (&rest args)
+  (concatenate '(vector (unsigned-byte 8))) args)
 
 
 ;;;; testing functions
