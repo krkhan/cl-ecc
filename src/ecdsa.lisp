@@ -55,16 +55,16 @@
 (defmethod ecdsa-gen-pub ((c Curve) (k integer) &key (hex nil))
   "Returns: number. Is the public key from private (random) integer"
   (assert (and (< 0 k) (< k (n c))))
-  (let ((priv-key (point->int (mul-point c (g c) k))))
+  (let ((pub-key (point->int (mul-point c (g c) k))))
     (if (eq hex t)
         (format nil "~x" priv-key)
-        priv-key)))
+        pub-key)))
 
-(defmethod ecdsa-gen-pub ((c Curve) (hex-string string) &key (hex nil))
+(defmethod ecdsa-gen-pub ((c Curve) (hex-string string) &key (hex nilg))
   "Returns: hex string. Is the ublic key from private (random) hex-string"
   (let ((k (parse-integer hex-string :radix 16)))
     (assert (and (< 0 k) (< k (n c))))
-    (let ((priv-key (point->int (mul-point c (g c) k))))
+    (let ((pub-key (point->int (mul-point c (g c) k))))
       (if (eq hex t)
           (format nil "~x" priv-key)
-          priv-key))))
+          pub-key))))
