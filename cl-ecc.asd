@@ -5,44 +5,42 @@
   :description "Describe cl-ecc here"
   :author "krkhan"
   :license "Specify license here"
-  :depends-on (#:alexandria
-               #:ironclad
+  :depends-on (#:ironclad
                #:iterate
                #:nibbles
                #:com.gigamonkeys.binary-data
                #:com.gigamonkeys.macro-utilities
                #:helper-library)
-  :components ((:module "src"
+  :components ((:module "common"
+                        :pathname ""
+                        :serial t
                         :components
                         ((:file "package")
-                         (:file "common" :depends-on ("package"))
-                         (:file "math-mod" :depends-on ("package" "common"))
-                         (:file "curve" :depends-on ("package"
+                         (:file "common")))
+               (:module "ecc"
+                        :serial t
+                        :components
+                        ((:file "common")
+                         (:file "model")
+                         (:file "math-mod" :depends-on ("model"))
+                         (:file "curve" :depends-on ("model"
                                                      "common"
                                                      "math-mod"))
-                         (:file "ecdh" :depends-on ("package" "curve"))
-                         (:file "elgamal" :depends-on ("package" "curve" "ecdh"))
-                         (:file "ecdsa" :depends-on ("package" "curve" "math-mod"))
-                         (:file "ecc" :depends-on ("package"
-                                                   "curve"
+                         (:file "ecdh" :depends-on ("curve"))
+                         (:file "elgamal" :depends-on ("curve" "ecdh"))
+                         (:file "ecdsa" :depends-on ("curve" "math-mod"))
+                         (:file "curve-parameters" :depends-on ("model"))
+                         (:file "ecc" :depends-on ("curve"
                                                    "ecdh"
                                                    "elgamal"
                                                    "ecdsa"))))
-               (:module "curves"
-                        :depends-on (src)
-                        :components
-                        #.(mapcar #'(lambda (p)
-                                      (list :file (pathname-name p)))
-                                  (uiop:directory-files
-                                   (merge-pathnames "curves/"
-                                                    *default-pathname-defaults*)
-                                   "*.lisp")))
-
 
                (:module "bitcoin"
-                        :depends-on (src curves)
+                        :serial t
+                        :depends-on (ecc)
                         :components
-                        ((:file "model"))))
+                        ((:file "model")
+                         (:file "common"))))
   :description "A library for use with eliptic curve cryptography.
                NOT TESTET OR SECURE"
   :in-order-to ((test-op (load-op cl-ecc-test))))

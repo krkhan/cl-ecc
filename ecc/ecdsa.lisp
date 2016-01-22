@@ -16,7 +16,7 @@
 (defgeneric ecdsa-verify-sig (curve msghash priv int)
   (:documentation "Returns: Predicate. Test if signature is valid"))
 
-(defgeneric ecdsa-gen-pub (curve entropy &key hex)
+(defgeneric ecdsa-gen-pub (curve priv)
   (:documentation "Returns: number or hex-string with hex key set to T"))
 
 
@@ -52,19 +52,15 @@
               (mul-point c pub u2))))
     (assert (= (mod (x p) (n c)) (r sig)))))
 
-(defmethod ecdsa-gen-pub ((c Curve) (k integer) &key (hex nil))
+(defmethod ecdsa-gen-pub ((c Curve) (k integer))
   "Returns: number. Is the public key from private (random) integer"
   (assert (and (< 0 k) (< k (n c))))
   (let ((pub-key (point->int (mul-point c (g c) k))))
-    (if (eq hex t)
-        (format nil "~x" priv-key)
-        pub-key)))
+        pub-key))
 
-(defmethod ecdsa-gen-pub ((c Curve) (hex-string string) &key (hex nilg))
-  "Returns: hex string. Is the ublic key from private (random) hex-string"
+(defmethod ecdsa-gen-pub ((c Curve) (hex-string string))
+  "Returns: number. Is the public key from private (random) hex-string"
   (let ((k (parse-integer hex-string :radix 16)))
     (assert (and (< 0 k) (< k (n c))))
     (let ((pub-key (point->int (mul-point c (g c) k))))
-      (if (eq hex t)
-          (format nil "~x" priv-key)
-          pub-key))))
+          pub-key)))

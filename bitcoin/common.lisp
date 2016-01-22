@@ -7,7 +7,14 @@
 
 (define-constant +base58-alphabet+ "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
   "The base58 alphabet")
-
+(define-constant +ecdsa-version-byte+ 04
+  "ECDSA key version byte to be prepended")
+(define-constant +pubkey-hash-version-byte+ 00
+  "Bitcoin public key hash version byte")
+(define-constant +script-hash-version-byte+ 05
+  "Bitcoin script hash version byte")
+(define-constant +privkey-hash-version-byte+ 128
+  "Bitcoin private key hash version byte")
 
 ;; Data
 
@@ -35,7 +42,10 @@
 
 ;; Keys
 
-(defmethod gen-btc-key (stream &key (ecdsa-version 04) (btc-version 00)) ;; will not work
+(defmethod gen-btc-key (stream &key
+                                 (ecdsa-version +ecdsa-version-byte+)
+                                 (btc-version +pubkey-hash-version-byte+))
+  ;; this method will not work
   (let ((pkey (nibbles:make-octet-vector 32))
         pubkey keyhash
         (sin (ironclad:make-octet-output-stream)))
@@ -46,7 +56,7 @@
                (n *SECP256K1*)))
 
     (setf pubkey privkey->pubkey pkey ecdsa-version)
-    (setf keyhash (pubkey->pubkey-hash pubkey))
+    (setf keyhash (pubkey->pubkey-hash pubkey btc-version))
 
     (write-sequence pkey sin)
     (write-sequence pubkey sin)
@@ -73,7 +83,7 @@
                     (nibbles:octet-vector ecdsa-version-byte)
                     (ironclad:integer-to-octets
                      (ecdsa-gen-pub *secp256k1*
-                                    (ironclad:octets-to-integer privkey)))))))
+                                    (ironclad:byte-array-to-hex-string privkey)))))))
 
 (defmethod pubkeyhash->b58Check-string (hash)
   (let ((as-decimal (ironclad:octets-to-integer hash))

@@ -18,7 +18,7 @@
   (let ((lastindex (1- (length args))))
     (mod (apply '* (subseq args 0 lastindex)) (nth lastindex args))))
 
-(defun inv-mod ((a integer) (n integer))
+(defun inv-mod (a n)
   "Returns: a^-1 (mod n)
    Signals: 'invalid-operation-error if gcd(a, n) != 1"
   (unless (= (gcd a n) 1)

@@ -2,7 +2,9 @@
 
 (in-package #:cl-ecc)
 
-(define-elliptic-curve p17 +p17+
+(define-constant +inf-point+ (make-instance 'Point :x 0 :y 0) "Zero Point")
+
+(define-elliptic-curve p17 *p17*
   :par-a "02"
   :par-b "02"
   :par-p "11"
@@ -10,7 +12,7 @@
   :par-n "13"
   :par-h "01")
 
-(define-elliptic-curve secp192r1 +secp192r1+
+(define-elliptic-curve secp192r1 *secp192r1*
   :par-a "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFC"
   :par-b "64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1"
   :par-p "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFF"
@@ -18,7 +20,7 @@
   :par-n "FFFFFFFFFFFFFFFFFFFFFFFF99DEF836146BC9B1B4D22831"
   :par-h "01")
 
-(define-elliptic-curve secp256k1 +secp256k1+
+(define-elliptic-curve secp256k1 *secp256k1*
   :par-a "00"
   :par-b "07"
   :par-p "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F"
