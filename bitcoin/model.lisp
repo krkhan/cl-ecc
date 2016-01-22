@@ -54,19 +54,27 @@
 
              (t (write-sequence value out)))))
 
+(defun pubhash->pubhashdata (in)
+  (list (read-u1/le-sequence 'vector in 1)
+        (read-value 'blob in :bytes 20)
+        (read-u1/le-sequence 'vector in 4)))
+
 (define-binary-type pub-key-hash (format)
-   (:reader (in)
-            (list (read-u1/le-sequence 'vector in 1)
-                  (read-value 'blob in :bytes 20)
-                  (read-u1/le-sequence 'vector in 4)))
-   (:writer (out value)
-            (cond
-              ((eq format 'flat) (write-sequence
-                                  (helper-library:flatten-vectors value) out))
-              ((eq format 'b58) (write-sequence
-                                 (pubkeyhash->b58check-string
-                                  (helper-library:flatten-vectors value)) out))
-              (t  (write-sequence value out)))))
+  (:reader (in)
+           (cond
+
+             ((eq format 'public)
+              (pubhash->pubhashdata (pubkey->pubkey-hash in 00)))
+
+             (t (pubhash->pubhashdata in))))
+  (:writer (out value)
+           (cond
+             ((eq format 'flat) (write-sequence
+                                 (helper-library:flatten-vectors value) out))
+             ((eq format 'b58) (write-sequence
+                                (pubkeyhash->b58check-string
+                                 (helper-library:flatten-vectors value)) out))
+             (t  (write-sequence value out)))))
 
 
 (define-binary-class Btc-Key ()
@@ -100,14 +108,14 @@
 
 (defmethod pubkey->pubkey-hash (sin btc-version-byte)
   (let ((pubkey (make-array 65 :element-type '(unsigned-byte 8))))
-    (read-sequence hash sin)
+    (read-sequence pubkey sin)
     (ironclad:make-octet-input-stream
      (concatenate '(vector (unsigned-byte 8))
                   (nibbles:octet-vector btc-version-byte)
                   (ironclad:digest-sequence
-                   :sha256
+                   :ripemd-160
                    (ironclad:digest-sequence
-                    :ripemd-160
+                    :sha256
                     pubkey))))))
 
 (defmethod privkey->pubkey (sin ecdsa-version-byte)
@@ -210,7 +218,7 @@
           (write-value 'pub-key-hash sout (test-pub-hash-read) :format format)
           (get-output-stream-string sout))
         (progn
-          (write-value 'pub-key-hash sout (test-pub-hash-read) :format format)
+          (write-value 'pub-key-hash oout (test-pub-hash-read) :format format)
           (ironclad:get-output-stream-octets oout)))))
 
 (defun test-round1 ()
