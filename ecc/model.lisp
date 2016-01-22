@@ -1,16 +1,9 @@
-;;;; cl-ecc.lisp
+;;;; model.lisp
 
 (in-package #:cl-ecc)
 
-;;; "cl-ecc" goes here. Hacks and glory await!
 
-
-
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defun hex-string-octet-length (num)
-    (assert (= (mod (length num) 2) 0))
-    (/ (length (format nil "~x" num)) 2)))
+;; General
 
 (define-binary-type byte-array (bytes)
   (:reader (in)
@@ -28,7 +21,9 @@
              ((eq bytes nil) (write-sequence seq out))
              ((integerp bytes) (write-sequence seq out :end bytes))
              (t (error "byte-array writer keys not specified correctly.")))))
+s
 
+;; Curve
 
 (defmacro define-elliptic-curve (name sym &key par-a par-b par-p par-g par-n par-h)
     (let ((curve-name (intern (concatenate 'string (string 'Curve-) (string name))))
@@ -52,8 +47,17 @@
                           (ironclad:hex-string-to-byte-array
                            ,(concatenate 'string par-a par-b par-p par-g par-n par-h))))))))
 
+;; Errors
+
+(defmacro define-ecc-error (error-name)
+  (let ((object (gensym))
+        (out (gensym)))
+    `(progn
+       (define-condition ,error-name (error)
+         ((msg :initarg :msg :reader error-msg)))
+       (defmethod print-object ((,object ,error-name) ,out)
+         (format ,out "~a" (error-msg ,object))))))
 
 
-(defun make-byte-array (size)
-  (make-array size :element-type '(unsigned-byte 8)
-                   :initial-element 0))
+(define-ecc-error invalid-operation-error)
+(define-ecc-error invalid-type-error)

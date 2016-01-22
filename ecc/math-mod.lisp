@@ -3,10 +3,11 @@
 (in-package #:cl-ecc)
 
 
-(defmethod add-mod (&rest args)
+(defun add-mod (&rest args)
   "Returns: arg1 + arg2 + ... + arg(n-1) (mod n)"
   (let ((lastindex (1- (length args))))
     (mod (apply '+ (subseq args 0 lastindex)) (nth lastindex args))))
+
 (defun sub-mod (&rest args)
   "Returns: arg1 - arg2 - ... - arg(n-1) (mod n)"
   (let ((lastindex (1- (length args))))
@@ -17,13 +18,7 @@
   (let ((lastindex (1- (length args))))
     (mod (apply '* (subseq args 0 lastindex)) (nth lastindex args))))
 
-
-(defmethod inv.mod ((a (eql 'octet-vector)) (n (eql 'octet-vector)))
-  (let ((a-int (ironclad:octets-to-integer a))
-        (n-int (ironclad:octets-to-integer n)))
-    (inv-mod a-int n-int)))
-
-(defmethod inv-mod ((a integer) (n integer))
+(defun inv-mod ((a integer) (n integer))
   "Returns: a^-1 (mod n)
    Signals: 'invalid-operation-error if gcd(a, n) != 1"
   (unless (= (gcd a n) 1)
