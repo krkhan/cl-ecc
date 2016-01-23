@@ -54,13 +54,13 @@
 
 (defmethod ecdsa-gen-pub ((c Curve) (k integer))
   "Returns: number. Is the public key from private (random) integer"
-  (assert (and (< 0 k) (< k (n c))))
+  (assert (and (< 0 k) (< k (ironclad:octets-to-integer (n c)))))
   (let ((pub-key (point->int (mul-point c (g c) k))))
         pub-key))
 
 (defmethod ecdsa-gen-pub ((c Curve) (hex-string string))
   "Returns: number. Is the public key from private (random) hex-string"
   (let ((k (parse-integer hex-string :radix 16)))
-    (assert (and (< 0 k) (< k (n c))))
+    (assert (and (< 0 k) (< k (ironclad:octets-to-integer (n c)))))
     (let ((pub-key (point->int (mul-point c (g c) k))))
           pub-key)))
