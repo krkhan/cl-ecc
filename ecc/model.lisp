@@ -67,7 +67,7 @@
   (format out "<Point~%~tx:~x~%~ty:~x>" (x p) (y p)))
 
 (defmethod print-object ((c Curve) out)
-  (format out "<Curve ~%a:~x~%b:~x~%p:~x~%g:~x~%n:~x~%>"
+  (format out "<Curve ~%a:~x~%b:~x~%p:~x~%g:~x~%n:~x~%~&h:~x~&>"
           (a c) (b c) (p c) (g c) (n c) (h c)))
 
 ;; Model

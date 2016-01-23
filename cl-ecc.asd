@@ -33,6 +33,6 @@
                          (:file "ecc" :depends-on ("curve"
                                                    "ecdh"
                                                    "elgamal"
-                                                   "ecdsa"))))
+                                                   "ecdsa")))))
 :description "A library for use with eliptic curve cryptography.
-               NOT TESTET OR SECURE"
+               NOT TESTET OR SECURE")
