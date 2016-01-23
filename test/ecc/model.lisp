@@ -43,30 +43,30 @@
   (let ((table-name (intern (concatenate 'string (string curve-name) (string '-mulpoints))) )
         (test-list-name (intern (concatenate 'string (string curve-name) (string '-ecdsa-tests-list))) )
         (tests-name (intern (concatenate 'string (string curve-name) (string '-ecdsa-tests))) )
-        (point-class-name (conc-to-global-sym (intern (concatenate 'string (string 'Point-) (string curve-name))))))
+        (curve-sym (conc-to-global-sym (string curve-name))))
 
     `(progn
 
        (defparameter ,table-name (make-hash-table))
 
        (setf (gethash ,(first mulpoint1) ,table-name)
-             (read-value ,point-class-name (ironclad:make-octet-input-stream
-                                            (ironclad:hex-string-to-byte-array ,(second mulpoint1)))))
+             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+                                                            (ironclad:hex-string-to-byte-array ,(second mulpoint1)))))
        (setf (gethash ,(first mulpoint2) ,table-name)
-             (read-value ,point-class-name (ironclad:make-octet-input-stream
-                                            (ironclad:hex-string-to-byte-array ,(second mulpoint2)))))
+             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+                                                            (ironclad:hex-string-to-byte-array ,(second mulpoint2)))))
        (setf (gethash ,(first mulpoint3) ,table-name)
-             (read-value ,point-class-name (ironclad:make-octet-input-stream
-                                            (ironclad:hex-string-to-byte-array ,(second mulpoint3)))))
+             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+                                                            (ironclad:hex-string-to-byte-array ,(second mulpoint3)))))
        (setf (gethash ,(first mulpoint4) ,table-name)
-             (read-value ,point-class-name (ironclad:make-octet-input-stream
-                                            (ironclad:hex-string-to-byte-array ,(second mulpoint4)))))
+             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+                                                            (ironclad:hex-string-to-byte-array ,(second mulpoint4)))))
        (setf (gethash ,(first mulpoint5) ,table-name)
-             (read-value ,point-class-name (ironclad:make-octet-input-stream
-                                            (ironclad:hex-string-to-byte-array ,(second mulpoint5)))))
+             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+                                                            (ironclad:hex-string-to-byte-array ,(second mulpoint5)))))
        (setf (gethash ,(first mulpoint6) ,table-name)
-             (read-value ,point-class-name (ironclad:make-octet-input-stream
-                                            (ironclad:hex-string-to-byte-array ,(second mulpoint6)))))
+             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+                                                            (ironclad:hex-string-to-byte-array ,(second mulpoint6)))))
 
        (defparameter ,test-list-name
          '(("msghash" ,msghash1
