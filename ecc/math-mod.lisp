@@ -3,14 +3,15 @@
 (in-package #:cl-ecc)
 
 
+
 (defun add-mod (&rest args)
   "Returns: arg1 + arg2 + ... + arg(n-1) (mod n)"
-  (let ((lastindex (1- (length args))))
+  (let* ((lastindex (1- (length args))))
     (mod (apply '+ (subseq args 0 lastindex)) (nth lastindex args))))
 
 (defun sub-mod (&rest args)
   "Returns: arg1 - arg2 - ... - arg(n-1) (mod n)"
-  (let ((lastindex (1- (length args))))
+  (let* ((lastindex (1- (length args))))
     (mod (apply '- (subseq args 0 lastindex)) (nth lastindex args))))
 
 (defun mul-mod (&rest args)

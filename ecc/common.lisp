@@ -9,3 +9,14 @@
                   (collect `(,n (write-value 'byte-array nil (ironclad:octets-to-integer
                                                               (,(nth i slots) ,Curve))))))
        ,@body))
+
+(defun if-octet-in-list->integer (&rest args)
+  (mapcar #'(lambda (x) (if (typep x 'octet-vector)
+                            (ironclad:octets-to-integer x)
+                            x))
+          (first args)))
+
+(defun if-octetlist->integer (&rest args)
+  (iterate (for i in args)
+           (when (typep i 'octet-vector)
+             (collect (ironclad:integer-to-octets)))))
