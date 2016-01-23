@@ -32,7 +32,7 @@
 
 
 (defmethod print-object ((p Point) out)
-  (when (point-equalp p +inf-point+)
+  (when (point-equalp p *inf-point*)
     (format out "<Point At Infinity>")
     (return-from print-object))
   (format out "<Point~%~tx:~x~%~ty:~x>" (x p) (y p)))

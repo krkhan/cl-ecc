@@ -43,7 +43,7 @@
   (let ((table-name (intern (concatenate 'string (string curve-name) (string '-mulpoints))) )
         (test-list-name (intern (concatenate 'string (string curve-name) (string '-ecdsa-tests-list))) )
         (tests-name (intern (concatenate 'string (string curve-name) (string '-ecdsa-tests))) )
-        (point-class-name (conc-global-sym-name (intern (concatenate 'string (string 'Point-) (string curve-name))))))
+        (point-class-name (conc-to-global-sym (intern (concatenate 'string (string 'Point-) (string curve-name))))))
 
     `(progn
 
