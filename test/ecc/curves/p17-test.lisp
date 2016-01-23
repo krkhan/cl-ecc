@@ -1,6 +1,6 @@
 ;;;; p17-test.lisp
 
-(in-package #:cl-ecc-test.curve-parameters)
+(in-package #:cl-ecc.test)
 
 (defvar p17-order 19)
 

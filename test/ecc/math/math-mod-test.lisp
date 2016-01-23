@@ -1,6 +1,6 @@
 ;;;; math-mod-test.lisp
 
-(in-package #:cl-ecc-test.math-mod)
+(in-package #:cl-ecc.test)
 
 (def-positive-test test-mod ()
   (let* ((a 2)
