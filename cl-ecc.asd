@@ -34,14 +34,5 @@
                                                    "ecdh"
                                                    "elgamal"
                                                    "ecdsa"))))
-
-               (:module "bitcoin"
-                        :serial t
-                        :depends-on (ecc)
-                        :components
-                        ((:file "utils")
-                         (:file "model")
-                         (:file "common")))))
-
 :description "A library for use with eliptic curve cryptography.
                NOT TESTET OR SECURE"
