@@ -31,7 +31,7 @@
 
              ((eq format 'flat)
               (write-sequence
-               (helper-library:flatten-vectors value) out))
+               (flatten-vectors value) out))
 
              (t (write-sequence value out)))))
 
@@ -46,11 +46,22 @@
   (:writer (out value)
            (cond
              ((eq format 'flat) (write-sequence
-                                 (helper-library:flatten-vectors value) out))
+                                 (flatten-vectors value) out))
              ((eq format 'b58) (write-sequence
                                 (pubkeyhash->b58check-string
-                                 (helper-library:flatten-vectors value)) out))
+                                 (flatten-vectors value)) out))
              (t  (write-sequence value out)))))
+
+
+;; printing
+
+(defmethod print-object ((object Btc-Key) stream)
+  (print-unreadable-object (object stream :type t)
+    (with-slots (private-key public-key pub-key-hash) object
+      (format stream "~&private-key: 0x~x~&public-key: 0x~x~&pub-key-hash: 0x~x~&"
+              private-key public-key pub-key-hash))))
+
+
 
 ;; Tests
 
@@ -73,6 +84,7 @@
 (defun known-privkey-to-octet ()
   (ironclad:hex-string-to-byte-array
    "18E14A7B6A307F426A94F8114701E7C8E774E7F9A47E2C2035DB29A206321725"))
+
 
 
 ;;;;;; ROUND 1 TESTS

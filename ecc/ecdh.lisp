@@ -9,7 +9,7 @@
   (:documentation "Result: a 'Point."))
 
 (defmethod ecdh-gen-pub ((c Curve) (priv integer))
-  (assert (and (< 0 priv) (< priv (n c))))
+  (assert (and (< 0 priv) (< priv (as-int #'n c))))
   (mul-point c (g c) priv))
 
 (defmethod ecdh-gen-secret ((c Curve) (my-priv integer) (partner-pub Point))

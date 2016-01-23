@@ -107,12 +107,3 @@
         ((= num 0) (concatenate 'string leading-ones (coerce result 'string)))
       (setf (values q r) (floor num 58))
       (push (char +base58-alphabet+ r) result))))
-
-
-;; printing
-
-(defmethod print-object ((object Btc-Key) stream)
-  (print-unreadable-object (object stream :type t)
-    (with-slots (private-key public-key pub-key-hash) object
-      (format stream "~&private-key: 0x~x~&public-key: 0x~x~&pub-key-hash: 0x~x~&"
-              private-key public-key pub-key-hash))))

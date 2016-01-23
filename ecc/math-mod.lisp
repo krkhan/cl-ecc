@@ -2,52 +2,34 @@
 
 (in-package #:cl-ecc)
 
-
-
 (defun add-mod (&rest args)
   "Returns: arg1 + arg2 + ... + arg(n-1) (mod n)"
-  (let* ((args (if-octet-in-list->integer args))
-         (lastindex (1- (length args))))
+  (let ((lastindex (1- (length args))))
     (mod (apply '+ (subseq args 0 lastindex)) (nth lastindex args))))
 
 (defun sub-mod (&rest args)
   "Returns: arg1 - arg2 - ... - arg(n-1) (mod n)"
-  (let* ((args (if-octet-in-list->integer args))
-         (lastindex (1- (length args))))
+  (let ((lastindex (1- (length args))))
     (mod (apply '- (subseq args 0 lastindex)) (nth lastindex args))))
 
 (defun mul-mod (&rest args)
   "Returns: arg1 * arg2 * ... * arg(n-1) (mod n)"
-  (let* ((args (if-octet-in-list->integer args))
-         (lastindex (1- (length args))))
+  (let ((lastindex (1- (length args))))
     (mod (apply '* (subseq args 0 lastindex)) (nth lastindex args))))
 
 (defun inv-mod (a n)
   "Returns: a^-1 (mod n)
    Signals: 'invalid-operation-error if gcd(a, n) != 1"
-  (destructuring-bind (a n) (if-octet-in-list->integer (list a n))
-    (unless (= (ironclad::gcd a n) 1)
-      (error 'invalid-operation-error :msg "gcd(a, n) != 1"))
+  (unless (= (ironclad::gcd a n) 1)
+    (error 'invalid-operation-error :msg "gcd(a, n) != 1"))
 
-    (multiple-value-bind (g b a) (ironclad:egcd a n)
-      (declare (ignore g a))
-      (mod b n))))
+  (multiple-value-bind (g b a) (ironclad:egcd a n)
+    (declare (ignore g a))
+    (mod b n)))
 
 (defun div-mod (a b n)
   "Returns: a / b (mod n)"
   (mul-mod a (inv-mod b n) n))
-
-(defun expt-mod (x e n)
-  "Returns: x^e (mod n)"
-  (destructuring-bind (x e n) (if-octet-in-list->integer (list x e n))
-    (loop with result = x
-       for i from (- (integer-length e) 2) downto 0
-       do
-         (setf result (mul-mod result result n))
-         (when (logbitp i e)
-           (setf result (mul-mod result x n)))
-       finally
-         (return-from expt-mod result))))
 
 (defun legendre-symbol (a p)
   "Returns: 1 if a is a quadratic residue (mod p),
@@ -56,33 +38,22 @@
            >1 there appears to be a problem with the arguments (ie p not prime)"
   (if (=  (mod a p) 0) (return-from legendre-symbol 0))
   (let* ((pow (truncate (/ (1- p) 2)))
-         (ls (expt-mod a pow p)))
+         (ls (ironclad:expt-mod a pow p)))
     (if (= ls (1- p))
         -1
         ls)))
 
-(defun legendre-symbol2 (a p)
-  "Returns: 1 if a is a quadratic residue (mod p),
-           -1 if a is a quadratic non-residue (mod p)
-            >1  if p is not a prime"
-  (let (pow ls)
-    (setf pow (truncate (/ (1- p) 2)))
-    (setf ls (expt-mod a pow p))
-    (when (= ls (1- p)) (return-from legendre-symbol2 -1))
-    ls))
-
 (defun sqrt-mod (a p)
   "Returns: x where x^2 = a (mod p)"
-  (destructuring-bind (a p) (if-octet-in-list->integer (list a p))
-    (let (ls s e n x b g r tt m gs)
-      (setf ls (legendre-symbol a p))
+  (let (ls s e n x b g r tt m gs)
+    (setf ls (legendre-symbol a p))
       (cond
         ((not (= ls 1))
          (error 'invalid-operation-error
                 :msg (format nil "sqrt of ~a does not exist mod ~a" a p)))
         ((= a 0) (return-from sqrt-mod 0))
         ((= p 2) (return-from sqrt-mod p))
-        ((= (mod p 4) 3) (return-from sqrt-mod (expt-mod a (/ (1+ p) 4) p))))
+        ((= (mod p 4) 3) (return-from sqrt-mod (ironclad:expt-mod a (/ (1+ p) 4) p))))
 
       (setf s (1- p))
       (setf e 0)
@@ -97,9 +68,9 @@
            (setf n (1+ n))
          until (= (legendre-symbol n p) -1))
 
-      (setf x (expt-mod a (truncate (/ (1+ s) 2)) p))
-      (setf b (expt-mod a s p))
-      (setf g (expt-mod n s p))
+      (setf x (ironclad:expt-mod a (truncate (/ (1+ s) 2)) p))
+      (setf b (ironclad:expt-mod a s p))
+      (setf g (ironclad:expt-mod n s p))
       (setf r e)
 
       (loop do
@@ -109,22 +80,50 @@
            (loop repeat r
               until (= tt 1)
               do
-                (setf tt (expt-mod tt 2 p))
+                (setf tt (ironclad:expt-mod tt 2 p))
                 (setf m (1+ m)))
 
            (when (= m 0) (return-from sqrt-mod x))
 
-           (setf gs (expt-mod g (expt 2 (- r m 1)) p))
+           (setf gs (ironclad:expt-mod g (expt 2 (- r m 1)) p))
            (setf g (mul-mod gs gs p))
            (setf x (mul-mod x gs p))
            (setf b (mul-mod b g p))
-           (setf r m)))))
+           (setf r m))))
 
 
 
 
 
 ;; Deprecated
+
+
+;; Does not return 100& correct
+
+;; (defun legendre-symbol2 (a p)
+;;   "Returns: 1 if a is a quadratic residue (mod p),
+;;            -1 if a is a quadratic non-residue (mod p)
+;;             >1  if p is not a prime"
+;;   (let (pow ls)
+;;     (setf pow (truncate (/ (1- p) 2)))
+;;     (setf ls (ironclad:expt-mod a pow p))
+;;     (when (= ls (1- p)) (return-from legendre-symbol2 -1))
+;;     ls))
+
+
+
+;; Ironclad expt being used
+
+;; (defun ironclad:expt-mod (x e n)
+;;   "Returns: x^e (mod n)"
+;;   (loop with result = x
+;;      for i from (- (integer-length e) 2) downto 0
+;;      do
+;;        (setf result (mul-mod result result n))
+;;        (when (logbitp i e)
+;;          (setf result (mul-mod result x n)))
+;;      finally
+;;        (return-from ironclad:expt-mod result)))
 
 
 ;; (defmethod egcd ((a (eql 'octet-vector)) (b (eql 'octet-vector)))
@@ -161,8 +160,8 @@
 
 
 
-;; (defun expt-mod-n2 (b e n)
-;;   (when (= n 1) (return-from expt-mod-n2 0))
+;; (defun ironclad:expt-mod-n2 (b e n)
+;;   (when (= n 1) (return-from ironclad:expt-mod-n2 0))
 ;;   (loop
 ;;      with base = (mod b n)
 ;;      with result = 1

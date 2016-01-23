@@ -2,8 +2,6 @@
 
 (in-package #:cl-ecc)
 
-(defvar *inf-point* (make-instance 'Point :x 0 :y 0) "Zero Point")
-
 (define-elliptic-curve p17 *p17*
   :par-a "02"
   :par-b "02"

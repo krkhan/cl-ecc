@@ -29,95 +29,104 @@
 (defgeneric order-of-point (curve pt)
   (:documentation "Return: integer. Order of a Point on a Curve"))
 
-(defgeneric point->int (pt)
+(defgeneric point->pubkey (pt &key version-byte)
   (:documentation "Return: integer. concatenate x and y coords of point into integer"))
-
 
 
 (defmethod point-equalp ((p1 Point) (p2 Point))
   (and
-    (equalp (x p1) (x p2))
-    (equalp (y p1) (y p2))))
+   (= (as-int #'x p1) (as-int #'x p2))
+   (= (as-int #'y p1) (as-int #'y p2))))
 
 
 (defmethod valid-curve-p ((ec Curve))
-  (with-slots-to-integers (ec-a ec-b ec-p) (a b p) ec
+  (let ((a (as-int #'a ec))
+        (b (as-int #'b ec))
+        (p (as-int #'p ec)))
     (assert (and
-             (<= 0 ec-a)
-             (< ec-a ec-p)
-             (< 0 ec-b)
-             (< ec-b ec-p)
-             (> ec-p 2)))
+             (<= 0 a)
+             (< a p)
+             (< 0 b)
+             (< b p)
+             (> p 2)))
     (assert (not
-             (= 0 (add-mod (mul-mod 4 (expt-mod ec-a 3 ec-p) ec-p)
-                           (mul-mod 27 (expt-mod ec-b 2 ec-p) ec-p)
-                           ec-p))))))
+             (= 0 (add-mod (mul-mod 4 (expt-mod a 3 p) p)
+                           (mul-mod 27 (expt-mod b 2 p) p)
+                           p))))))
 
 (defmethod point-on-curve-p ((ec Curve) (pt Point))
-  (with-slots-to-integers (ec-a ec-b ec-p) (a b p) ec
-    (with-slots-to-integers (pt-x pt-y) (x y) pt
-      (when (point-equalp pt *inf-point*)
-        (return-from point-on-curve-p t))
-      (let ((left (expt-mod pt-y 2 ec-p))
-            (right (add-mod (expt-mod pt-x 3 ec-p)
-                            (mul-mod ec-a pt-x ec-p)
-                            ec-b
-                            ec-p)))
-        (equalp left right)))))
+  (let ((x (as-int #'x pt))
+        (y (as-int #'y pt))
+        (p (as-int #'p ec))
+        (a (as-int #'a ec))
+        (b (as-int #'b ec)))
+    (when (point-equalp pt *inf-point*)
+      (return-from point-on-curve-p t))
+    (let ((left (expt-mod y 2 p))
+          (right (add-mod (expt-mod x 3 p)
+                          (mul-mod a x p)
+                          b
+                          p)))
+      (equalp left right))))
 
 (defmethod at-x ((ec Curve) (x integer))
-  (with-slots-to-integers (a-val b-val p-val) (a b p) ec
-      (assert (< x p-val))
-      (let* ((ysq (add-mod (expt-mod x 3 p-val) (mul-mod a-val x p-val) b-val p-val))
-            (y (sqrt-mod ysq p-val)))
-        (values y (- p-val y)))))
+  (let ((a (as-int #'a ec))
+        (b (as-int #'b ec))
+        (p (as-int #'p ec)))
+    (assert (< x p))
+    (let* ((ysq (add-mod (expt-mod x 3 p) (mul-mod a x p) b p))
+           (y (sqrt-mod ysq p)))
+      (values y (- p y)))))
 
 (defmethod point-inverse ((ec Curve) (pt Point))
-  (with-slots-to-integers (p-val) (p) ec
-    (with-slots-to-integers (y-val) (y) pt
-      (make-instance (type-of pt)
-                     :x (x pt)
-                     :y (read-value 'byte-array (ironclad:integer-to-octets
-                                                 (mul-mod -1 y-val p-val))
-                                    :bytes (length (y pt)))))))
+  (let ((x (as-int #'x pt))
+        (y (as-int #'y pt))
+        (p (as-int #'p ec)))
+    (make-instance (type-of pt)
+                   :x x
+                   :y (ironclad:integer-to-octets
+                       (mul-mod -1 y p)))))
 
 (defmethod add-points ((ec Curve) (p1 Point) (p2 Point))
-  (with-slots-to-integers (ec-a ec-p) (a p) ec
-    (with-slots-to-integers (p1-x p1-y) (x y) p1
-      (with-slots-to-integers (p2-x p2-y) (x y) p2
-        (when (point-equalp p1 *inf-point*)
-          (return-from add-points p2))
-        (when (point-equalp p2 *inf-point*)
-          (return-from add-points p1))
-        (when (and (= p1-x p2-x)
-                   (or (not (= p1-y p2-y))
-                       (= p1-y 0)))
-          (return-from add-points *inf-point*))
+  (let ((p1-x (as-int #'x p1))
+        (p1-y (as-int #'y p1))
+        (p2-x (as-int #'x p2))
+        (p2-y (as-int #'y p2))
+        (p (as-int #'p ec))
+        (a (as-int #'a ec)))
+    (when (point-equalp p1 *inf-point*)
+      (return-from add-points p2))
+    (when (point-equalp p2 *inf-point*)
+      (return-from add-points p1))
+    (when (and (= p1-x p2-x)
+               (or (not (= p1-y p2-y))
+                   (= p1-y 0)))
+      (return-from add-points *inf-point*))
 
-        (let (s result-x result-y)
-          (if (= p1-x p2-x)
-              (setf s (mul-mod (add-mod (mul-mod 3 p1-x p1-x ec-p)
-                                        ec-a
-                                        ec-p)
-                               (inv-mod (mul-mod 2 p1-y ec-p)
-                                        ec-p)
-                               ec-p))
-              (setf s (mul-mod (sub-mod p2-y p1-y ec-p)
-                               (inv-mod (sub-mod p2-x p1-x ec-p)
-                                        ec-p)
-                               ec-p)))
-          (setf result-x (sub-mod (mul-mod s s ec-p)
-                                  p1-x
-                                  p2-x
-                                  ec-p))
-          (setf result-y (sub-mod (mul-mod s
-                                           (sub-mod p1-x result-x ec-p)
-                                           ec-p)
-                                  p1-y
-                                  ec-p))
-          (make-instance (type-of p1)
-                         :x (read-value 'byte-array (ironclad:integer-to-octets result-x))
-                         :y (read-value 'byte-array (ironclad:integer-to-octets result-y))))))))
+    (let (s result-x result-y)
+      (if (= p1-x p2-x)
+          (setf s (mul-mod (add-mod (mul-mod 3 p1-x p1-x p)
+                                    a
+                                    p)
+                           (inv-mod (mul-mod 2 p1-y p)
+                                    p)
+                           p))
+          (setf s (mul-mod (sub-mod p2-y p1-y p)
+                           (inv-mod (sub-mod p2-x p1-x p)
+                                    p)
+                           p)))
+      (setf result-x (sub-mod (mul-mod s s p)
+                              p1-x
+                              p2-x
+                              p))
+      (setf result-y (sub-mod (mul-mod s
+                                       (sub-mod p1-x result-x p)
+                                       p)
+                              p1-y
+                              p))
+      (make-instance 'Point
+                     :x (integer-to-octets result-x)
+                     :y (integer-to-octets result-y)))))
 
 
 (defmethod mul-point ((c Curve) (pt Point) (d integer))
@@ -139,5 +148,5 @@
         until (point-equalp result *inf-point*)
         finally (return-from order-of-point (1- i))))
 
-(defmethod point->int ((pt Point))
-  (ironclad:octets-to-integer (concatenate '(vector (unsigned-byte 8)) (x pt) (y pt))))
+(defmethod point->pubkey ((pt Point) &key (version-byte 04))
+  (ironclad:octets-to-integer (concatenate 'octet-vector (octet-vector version-byte) (x pt) (y pt) )))

@@ -9,8 +9,8 @@
                #:iterate
                #:nibbles
                #:com.gigamonkeys.binary-data
-               #:com.gigamonkeys.macro-utilities
-               #:helper-library)
+               #:com.gigamonkeys.macro-utilities)
+  :serial t
   :components ((:module "common"
                         :pathname ""
                         :serial t
@@ -39,7 +39,9 @@
                         :serial t
                         :depends-on (ecc)
                         :components
-                        ((:file "model")
-                         (:file "common"))))
-  :description "A library for use with eliptic curve cryptography.
-               NOT TESTET OR SECURE")
+                        ((:file "utils")
+                         (:file "model")
+                         (:file "common")))))
+
+:description "A library for use with eliptic curve cryptography.
+               NOT TESTET OR SECURE"

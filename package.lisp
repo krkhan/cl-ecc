@@ -5,7 +5,6 @@
         #:ironclad
         #:nibbles
         #:iterate
-        #:helper-library
         #:com.gigamonkeys.macro-utilities)
   (:shadow :null)
   (:import-from #:com.gigamonkeys.binary-data
