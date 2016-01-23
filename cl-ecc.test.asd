@@ -1,7 +1,8 @@
 ;;;; cl-ecc.test.asd
 
 (asdf:defsystem #:cl-ecc.test
-  :depends-on (#:cl-ecc)
+  :depends-on (#:cl-ecc
+               #:nibbles)
   :serial t
   :components ((:module "common"
                         :pathname "test"

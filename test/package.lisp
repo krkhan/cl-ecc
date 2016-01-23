@@ -2,4 +2,5 @@
 
 (defpackage #:cl-ecc.test
   (:use #:cl
-        #:cl-ecc))
+        #:cl-ecc
+        #:nibbles))

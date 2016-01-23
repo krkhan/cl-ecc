@@ -4,22 +4,21 @@
 
 
 (defmacro make-curve-tests (curve)
-  (let* ((curve-symbol (conc-global-sym-name curve '-curve))
-         (gen-symbol (conc-global-sym-name curve '-gen)))
+  (let* ((curve-symbol (conc-to-global-sym curve)))
     `(progn
        (def-positive-test ,(conc-sym-name 'test-Curve-validity- curve) ()
          (valid-curve-p ,curve-symbol))
 
        (def-positive-test ,(conc-sym-name 'test-Point-on-Curve- curve) ()
          (let* ((c ,curve-symbol))
-           (assert (point-on-curve-p ,curve-symbol ,gen-symbol))
+           (assert (point-on-curve-p ,curve-symbol (cl-ecc::g ,curve-symbol)))
            (assert (point-on-curve-p ,curve-symbol *inf-point*))))
 
        (def-positive-test ,(conc-sym-name 'test-Point-multiply- curve) ()
          (let ((mulpoints ,(conc-sym-name curve '-mulpoints)))
            (loop for k being the hash-keys in mulpoints using (hash-value v)
               do
-                (assert (point-equalp (mul-point ,curve-symbol ,gen-symbol k) v)))))
+                (assert (point-equalp (mul-point ,curve-symbol (cl-ecc::g ,curve-symbol) k) v)))))
 
        (def-positive-test ,(conc-sym-name 'test-ecdsa- curve) ()
          (dolist (test ,(conc-sym-name curve '-ecdsa-tests))
@@ -43,29 +42,29 @@
   (let ((table-name (intern (concatenate 'string (string curve-name) (string '-mulpoints))) )
         (test-list-name (intern (concatenate 'string (string curve-name) (string '-ecdsa-tests-list))) )
         (tests-name (intern (concatenate 'string (string curve-name) (string '-ecdsa-tests))) )
-        (curve-sym (conc-to-global-sym (string curve-name))))
+        (curve-sym (conc-to-global-sym curve-name)))
 
     `(progn
 
        (defparameter ,table-name (make-hash-table))
 
        (setf (gethash ,(first mulpoint1) ,table-name)
-             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+             (read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
                                                             (ironclad:hex-string-to-byte-array ,(second mulpoint1)))))
        (setf (gethash ,(first mulpoint2) ,table-name)
-             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+             (read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
                                                             (ironclad:hex-string-to-byte-array ,(second mulpoint2)))))
        (setf (gethash ,(first mulpoint3) ,table-name)
-             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+             (read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
                                                             (ironclad:hex-string-to-byte-array ,(second mulpoint3)))))
        (setf (gethash ,(first mulpoint4) ,table-name)
-             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+             (read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
                                                             (ironclad:hex-string-to-byte-array ,(second mulpoint4)))))
        (setf (gethash ,(first mulpoint5) ,table-name)
-             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+             (read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
                                                             (ironclad:hex-string-to-byte-array ,(second mulpoint5)))))
        (setf (gethash ,(first mulpoint6) ,table-name)
-             (cl-ecc::read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
+             (read-value (type-of (cl-ecc::g ,curve-sym)) (ironclad:make-octet-input-stream
                                                             (ironclad:hex-string-to-byte-array ,(second mulpoint6)))))
 
        (defparameter ,test-list-name
