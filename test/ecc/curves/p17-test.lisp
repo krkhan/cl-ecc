@@ -32,10 +32,10 @@
                                                             :x 10
                                                             :y 20) :n 40))
 
-(def-negative-test test-Point-constructor-error invalid-type-error ()
+(def-negative-test test-Point-constructor-error cl-ecc::invalid-type-error ()
   (make-instance 'Point :x 20 :y 30.5))
 
-(def-negative-test test-Curve-constructor-error invalid-type-error ()
+(def-negative-test test-Curve-constructor-error cl-ecc::invalid-type-error ()
   (make-instance 'Curve :a 10 :b 20 :p 30 :g 0 :n 40))
 
 (def-negative-test test-Curve-validity-error simple-error ()
