@@ -33,16 +33,16 @@
 ;; General Classes
 
 (defclass Point ()
-  ((x :accessor x :initarg :x :initform 0)
-   (y :accessor y :initarg :y :initform 0)))
+  ((x :accessor x :initarg :x :initform 0 :type 'octet-vector)
+   (y :accessor y :initarg :y :initform 0 :type 'octet-vector)))
 
 (defclass Curve ()
-  ((a :accessor a :initarg :a)
-   (b :accessor b :initarg :b)
-   (p :accessor p :initarg :p)
-   (g :accessor g :initarg :g)
-   (n :accessor n :initarg :n)
-   (h :accessor h :initarg :h)))
+  ((a :accessor a :initarg :a :type 'octet-vector)
+   (b :accessor b :initarg :b :type 'octet-vector)
+   (p :accessor p :initarg :p :type 'octet-vector)
+   (g :accessor g :initarg :g :type 'Point)
+   (n :accessor n :initarg :n :type 'octet-vector)
+   (h :accessor h :initarg :h :type 'octet-vector)))
 
 (defvar *inf-point* (make-instance 'Point
                                    :x (octet-vector 0)

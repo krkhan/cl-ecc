@@ -9,7 +9,8 @@
                #:iterate
                #:nibbles
                #:com.gigamonkeys.binary-data
-               #:com.gigamonkeys.macro-utilities)
+               #:com.gigamonkeys.macro-utilities
+               #:com.gigamonkeys.test-framework)
   :serial t
   :components ((:module "common"
                         :pathname ""

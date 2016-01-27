@@ -39,6 +39,8 @@
   (if (=  (mod a p) 0) (return-from legendre-symbol 0))
   (let* ((pow (truncate (/ (1- p) 2)))
          (ls (ironclad:expt-mod a pow p)))
+    (when (and (> ls 1) (< ls -1))
+      (error "Seems to be a problem with the arguments. (ie p is not prime)"))
     (if (= ls (1- p))
         -1
         ls)))
