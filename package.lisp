@@ -3,15 +3,11 @@
 (defpackage #:cl-ecc
   (:use #:cl
         #:ironclad
-        #:nibbles
         #:iterate
         #:com.gigamonkeys.macro-utilities)
+
   (:shadow :null)
-  (:import-from #:com.gigamonkeys.binary-data
-                :read-value
-                :write-value
-                :define-binary-type
-                :define-binary-class)
+
   (:export
    ;; external functions
    :ecdh-gen-pub

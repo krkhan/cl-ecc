@@ -7,10 +7,7 @@
   :license "Specify license here"
   :depends-on (#:ironclad
                #:iterate
-               #:nibbles
-               #:com.gigamonkeys.binary-data
-               #:com.gigamonkeys.macro-utilities
-               #:com.gigamonkeys.test-framework)
+               #:com.gigamonkeys.macro-utilities)
   :serial t
   :components ((:module "common"
                         :pathname ""
