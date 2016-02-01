@@ -21,24 +21,17 @@
    :sig-equalp
    :ecdsa-gen-pub
 
-   ;; internal functions
+   ;;;; internal functons
 
    ;; utils
 
-   :make-byte-array
+   :octet-vector
 
-   ;; read/write
-   :read-value
-   :write-value
+   ;; reader functions
+   :get-x :get-y :get-a :get-b :get-p :get-g :get-n :get-h
 
    ;; math-mod
-   :add-mod
-   :sub-mod
-   :mul-mod
-   :inv-mod
-   :div-mod
-   :expt-mod
-   :sqrt-mod
+   :add-mod :sub-mod :mul-mod :inv-mod :div-mod :expt-mod :sqrt-mod
 
    ;; Curve and Point functions
    :point-equalp
@@ -51,7 +44,7 @@
    :order-of-point
    :point->int
 
-   ;; Errors
+  ;; Errors
    :invalid-ecc-error
    :invalid-type-error
 
