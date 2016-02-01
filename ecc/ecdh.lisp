@@ -11,9 +11,12 @@
 (defclass ECDH-Secret (Point) ())
 
 (defmethod ecdh-gen-pub ((ec Curve) (priv Private-Key))
-  (assert (and (< 0 priv) (< (get-slot :int 'key priv) (get-slot :int 'n ec))))
-  (change-class (mul-point ec (get-slot :point 'g ec) (get-slot :int 'key priv))
-                'ECDH-Public-Key))
+  (let ((priv-key (get-slot :int 'key priv))
+        (g (get-slot :point 'g ec))
+        (n (get-slot :int 'n ec)))
+    (assert (and (< 0 priv-key) (< priv-key n)))
+    (change-class (mul-point ec g priv-key)
+                  'ECDH-Public-Key)))
 
 (defmethod ecdh-gen-secret ((ec Curve) (my-priv Private-Key) (partner-pub ECDH-Public-Key))
   (assert (point-on-curve-p ec partner-pub))

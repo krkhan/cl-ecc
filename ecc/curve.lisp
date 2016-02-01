@@ -46,7 +46,7 @@
     (assert (and
              (<= 0 a)
              (< a p)
-             (< 0 b)
+             (<= 0 b)
              (< b p)
              (> p 2)))
     (assert (not
@@ -80,10 +80,10 @@
 
 (defmethod point-inverse ((ec Curve) (pt Point))
   (let ((x (get-slot :int 'x pt))
-                       (y (get-slot :int 'y pt))
+        (y (get-slot :int 'y pt))
         (p (get-slot :int 'p ec)))
     (make-instance (type-of pt)
-                   :x x
+                   :x (get-slot :vector 'x pt)
                    :y (ironclad:integer-to-octets
                        (mul-mod -1 y p)))))
 
@@ -147,6 +147,3 @@
         result = (mul-point c pt i)
         until (point-equalp result *inf-point*)
         finally (return-from order-of-point (1- i))))
-
-(defmethod point->pubkey ((pt Point) &key (version-byte 04))
-  (ironclad:octets-to-integer (concatenate 'octet-vector (octet-vector version-byte) (x pt) (y pt) )))

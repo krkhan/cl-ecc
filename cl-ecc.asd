@@ -32,5 +32,5 @@
                                                    "ecdh"
                                                    "elgamal"
                                                    "ecdsa")))))
-:description "A library for use with eliptic curve cryptography.
+:description "A library for eliptic curve cryptography.
                NOT TESTET OR SECURE")

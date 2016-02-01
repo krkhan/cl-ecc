@@ -3,15 +3,9 @@
 
 (in-package #:cl-ecc)
 
-(defclass ElGamalMessage ()
-  ((c1 :initarg :c1
-       :initform (error "c1 must be initialized"))
-   (c2 :initarg :c2
-       :initform (error "c2 must be initialized"))))
-
-(define-generic-reader-functions ElGamalmessage)
-
-
+(defclass ElGamalMessage (Point) ())
+(defclass ElGamalPlaintext (Point)())
+(defclass ElGamalCiphertext (Point) ())
 
 (defgeneric elgamal-encrypt (curve plaintext partner-pub my-priv)
   (:documentation "Returns: 'ElGamalMessage"))
@@ -20,24 +14,39 @@
 
 ;; Methods
 
-(defmethod elgamal-encrypt ((c Curve) (plaintext Point)
+(defmethod elgamal-encrypt ((c Curve) (plaintext ELGamalPlaintext)
                             (partner-pub ECDH-Public-Key) (my-priv Private-Key))
+
   (assert (point-on-curve-p c plaintext))
   (assert (point-on-curve-p c partner-pub))
-  (let ((my-pub (ecdh-gen-pub c (get-key :int my-priv))))
+  (let ((my-pub (ecdh-gen-pub c my-priv)))
     (make-instance
      'ElGamalMessage
-     :c1 my-pub
-     :c2 (add-points
-          c
-          plaintext
-          (ecdh-gen-secret c (get-key :int my-priv) partner-pub)))))
+     :x my-pub
+     :y (change-class (add-points c
+                                  plaintext
+                                  (ecdh-gen-secret c my-priv partner-pub))
+                      'ElGAmalCiphertext))))
 
-(defmethod elgamal-decrypt ((c Curve) (m ElGamalMessage) (my-priv Private-Key))
-  (assert (point-on-curve-p c (get-c1 :int m)))
-  (assert (point-on-curve-p c (get-c2 :int m)))
-  (add-points c
-              (get-c2 :int m )
-              (point-inverse c (ecdh-gen-secret c
-                                                (get-key :int my-priv)
-                                                (get-c1 :int m )))))
+(defmethod elgamal-decrypt ((c Curve) (msg ElGamalMessage) (my-priv Private-Key))
+  (let ((partner-pub (get-slot :point 'x msg))
+        (ciphertext (get-slot :point 'y msg)))
+    (assert (point-on-curve-p c partner-pub))
+    (assert (point-on-curve-p c ciphertext))
+    (change-class (add-points c
+                              ciphertext
+                              (point-inverse c
+                                             (ecdh-gen-secret c
+                                                              my-priv
+                                                              partner-pub)))
+                  'ElGamalPlaintext)))
+
+;; Printing
+
+
+(defmethod print-object ((msg ElGamalmessage) stream)
+  (print-unreadable-object (msg stream :type t)
+    (format stream "~&~t x:~a
+                   ~&~t y:~a"
+            (slot-value msg 'x)
+            (slot-value msg 'y))))

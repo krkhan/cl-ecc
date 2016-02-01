@@ -28,7 +28,7 @@
    :octet-vector
 
    ;; reader functions
-   :get-x :get-y :get-a :get-b :get-p :get-g :get-n :get-h
+   :get-slot
 
    ;; math-mod
    :add-mod :sub-mod :mul-mod :inv-mod :div-mod :expt-mod :sqrt-mod
@@ -42,7 +42,6 @@
    :add-point
    :mul-point
    :order-of-point
-   :point->int
 
   ;; Errors
    :invalid-ecc-error
