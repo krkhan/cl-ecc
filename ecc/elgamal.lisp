@@ -3,19 +3,23 @@
 
 (in-package #:cl-ecc)
 
-(defclass ElGamalMessage (Point) ())
-(defclass ElGamalPlaintext (Point)())
-(defclass ElGamalCiphertext (Point) ())
+;; Elgamal generics
 
 (defgeneric elgamal-encrypt (curve plaintext partner-pub my-priv)
   (:documentation "Returns: 'ElGamalMessage"))
 (defgeneric elgamal-decrypt (curve ElGamalMessage my-priv)
   (:documentation "Returns: a 'Point."))
 
-;; Methods
+;; Elgamal classes
+
+(defclass ElGamalMessage (Point) ())
+(defclass ElGamalPlaintext (Point)())
+(defclass ElGamalCiphertext (Point) ())
+
+;; ElGamal methods
 
 (defmethod elgamal-encrypt ((c Curve) (plaintext ELGamalPlaintext)
-                            (partner-pub ECDH-Public-Key) (my-priv Private-Key))
+                            (partner-pub ECDH-Public-Key) (my-priv ECDH-Private-Key))
 
   (assert (point-on-curve-p c plaintext))
   (assert (point-on-curve-p c partner-pub))
@@ -28,7 +32,7 @@
                                   (ecdh-gen-secret c my-priv partner-pub))
                       'ElGAmalCiphertext))))
 
-(defmethod elgamal-decrypt ((c Curve) (msg ElGamalMessage) (my-priv Private-Key))
+(defmethod elgamal-decrypt ((c Curve) (msg ElGamalMessage) (my-priv ECDH-Private-Key))
   (let ((partner-pub (get-slot :point 'x msg))
         (ciphertext (get-slot :point 'y msg)))
     (assert (point-on-curve-p c partner-pub))
@@ -40,13 +44,3 @@
                                                               my-priv
                                                               partner-pub)))
                   'ElGamalPlaintext)))
-
-;; Printing
-
-
-(defmethod print-object ((msg ElGamalmessage) stream)
-  (print-unreadable-object (msg stream :type t)
-    (format stream "~&~t x:~a
-                   ~&~t y:~a"
-            (slot-value msg 'x)
-            (slot-value msg 'y))))

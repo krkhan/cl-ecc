@@ -12,3 +12,17 @@
   (let* ((a 2)
         (p 360027784083079948259017962255826120)
         (sq (sqrt-mod a p)))))
+;; Curve tests
+
+;; (define-test test-point-equalp
+;;     (:tags '(curve-tests))
+;;   (assert-eql t (point-equalp (make-instance 'Point
+;;                                              :x (make-array 10 :element-type 'simple-octet-vector)
+;;                                              :y (make-array 10 :element-type 'simple-octet-vector))
+;;                               (make-instance 'Point
+;;                                              :x (make-array 10 :element-type 'simple-octet-vector)
+;;                                              :y (make-array 10 :element-type 'simple-octet-vector))))
+;;   (assert-eql nil (point-equalp (make-instance 'Point
+;;                                                :x (make-array 10 :element-type 'simple-octet-vector)
+;;                                                :y (make-array 10 :element-type 'simple-octet-vector))
+;;                                 :y (make-array 9 :element-type 'simple-octet-vector))))

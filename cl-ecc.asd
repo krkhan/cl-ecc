@@ -9,16 +9,11 @@
                #:iterate
                #:com.gigamonkeys.macro-utilities)
   :serial t
-  :components ((:module "common"
-                        :pathname ""
+  :components ((:module "ecc"
                         :serial t
                         :components
                         ((:file "package")
-                         (:file "common")))
-               (:module "ecc"
-                        :serial t
-                        :components
-                        ((:file "common")
+                         (:file "common")
                          (:file "model")
                          (:file "math-mod" :depends-on ("model"))
                          (:file "curve" :depends-on ("model"
@@ -28,6 +23,7 @@
                          (:file "elgamal" :depends-on ("curve" "ecdh"))
                          (:file "ecdsa" :depends-on ("curve" "math-mod"))
                          (:file "curve-parameters" :depends-on ("model"))
+                         (:file "printing" :depends-on ("model"))
                          (:file "ecc" :depends-on ("curve"
                                                    "ecdh"
                                                    "elgamal"

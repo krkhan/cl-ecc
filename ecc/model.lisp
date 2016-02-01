@@ -7,31 +7,11 @@
    "General reader function that gets value from object according to spec.
     Arguments; spec: :int, :vector, :hex-string, :point"))
 
+(defgeneric get-key (spec object)
+  (:documentation
+   "Get key from object and returns according to spec.
+    Arguments for spec: :int, :vector, :hex-string"))
 
-
-;; Helper macros
-
-(defmacro define-generic-reader-functions (class)
-
-  `(progn
-
-     (defmethod get-slot :before (slot (object ,class) spec)
-                (cond
-                  ((and (eq slot 'g)
-                        (typep object 'Curve)) (assert (typep (slot-value object slot) 'Point)))
-                  (t (assert (typep (slot-value object slot) 'octet-vector)))))
-
-     (defmethod get-slot ((spec (eql :int)) slot (object ,class) )
-       (ironclad:octets-to-integer (slot-value object slot)))
-
-     (defmethod get-slot ((spec (eql :vector)) slot (object ,class) )
-       (slot-value object slot))
-
-     (defmethod get-slot ((spec (eql :hex-string)) slot (object ,class))
-       (ironclad:byte-array-to-hex-string (slot-value object slot)))
-
-     (defmethod get-slot ((spec (eql :point)) slot (object ,class))
-       (slot-value object slot))))
 
 ;; Model
 
@@ -57,35 +37,35 @@
 ;; Generic Classes and reader functions
 (defclass Private-Key ()
   ((key :initarg :key
-        :initform (error ":key must be initialized")
+        :initform (error 'unbound-slot :msg  ":key must be initialized")
         :type 'octet-vector)))
 
 (defclass Point ()
   ((x :initarg :x
-      :initform (error ":x must be initialized")
+      :initform (error 'unbound-slot :msg ":x must be initialized")
       :type '(octet-vector))
    (y :initarg :y
-      :initform (error ":y must be initialized")
+      :initform (error 'unbound-slot :msg  ":y must be initialized")
       :type 'octet-vector)))
 
 (defclass Curve ()
   ((a :initarg :a
-      :initform (error ":a must be initialized")
+      :initform (error 'unbound-slot :msg  ":a must be initialized")
       :type 'octet-vector)
    (b :initarg :b
-      :initform (error ":b must be initialized")
+      :initform (error 'unbound-slot :msg ":b must be initialized")
       :type 'octet-vector)
    (p :initarg :p
-      :initform (error ":p must be initialized")
+      :initform (error 'unbound-slot :msg ":p must be initialized")
       :type 'octet-vector)
    (g :initarg :g
-      :initform (error ":g must be initialized")
+      :initform (error 'unbound-slot :msg ":g must be initialized")
       :type 'Point)
    (n :initarg :n
-      :initform (error ":n must be initialized")
+      :initform (error 'unbound-slot :msg ":n must be initialized")
       :type 'octet-vector)
    (h :initarg :h
-      :initform (error ":h must be initialized")
+      :initform (error 'unbound-slot :msg ":h must be initialized")
       :type 'octet-vector)))
 
 ;; Reader functions
@@ -93,59 +73,20 @@
 (define-generic-reader-functions Point)
 (define-generic-reader-functions Curve)
 
+(defmethod get-key ((spec (eql :vector)) (object Private-key))
+  (concatenate 'octet-vector
+               (get-slot :vector 'version-byte object)
+               (get-slot :vector 'x object)
+               (get-slot :vector 'y object)) )
+
+(defmethod get-key ((spec (eql :int)) (object Private-key))
+  (ironclad:octets-to-integer (get-key :vector object)))
+
+(defmethod get-key ((spec (eql :hex-string)) (object Private-key))
+  (ironclad:byte-array-to-hex-string (get-key :vector object)))
+
 
 (defvar *inf-point* (make-instance 'Point
-                                   :x (octet-vector 0)
-                                   :y (octet-vector 0))
+                                   :x (octet-vector 1)
+                                   :y (octet-vector 1))
   "Zero Point")
-
-
-
-
-
-;; Printing
-
-(defmethod print-object ((pt Point) stream)
-  (when (point-equalp pt *inf-point*)
-    (format stream "<Point At Infinity>")
-    (return-from print-object))
-  (print-unreadable-object (pt stream :type t)
-    (format stream "~&~t x:~x ~&~t x:~d ~&~t x:~x ~&
-                   ~&~t y:~x ~&~t y:~d ~&~t y:~x ~&"
-            (get-slot :vector 'x pt) (get-slot :int 'x pt) (get-slot :hex-string 'x pt)
-            (get-slot :vector 'y pt) (get-slot :int 'y pt) (get-slot :hex-string 'y pt))))
-
-(defmethod print-object ((ec Curve) stream)
-  (print-unreadable-object (ec stream :type t)
-    (format stream "~&~t a:~x ~&~t a:~d ~&~t a:~x
-                   ~&~t b:~x ~&~t b:~d ~&~t b:~x
-                   ~&~t p:~x ~&~t p:~d ~&~t p:~x
-                   ~&~t ~a
-                   ~&~t n:~x ~&~t n:~d ~&~t n:~x
-                   ~&~t h:~x ~&~t h:~d ~&~t h:~x"
-            (get-slot :vector 'a ec) (get-slot :int 'a ec) (get-slot :hex-string 'a ec)
-            (get-slot :vector 'b ec) (get-slot :int 'b ec) (get-slot :hex-string 'b ec)
-            (get-slot :vector 'p ec) (get-slot :int 'p ec) (get-slot :hex-string 'p ec)
-            (get-slot :point 'g ec)
-            (get-slot :vector 'n ec) (get-slot :int 'n ec) (get-slot :hex-string 'n ec)
-            (get-slot :vector 'h ec) (get-slot :int 'h ec) (get-slot :hex-string 'h ec))))
-
-(defmethod print-object ((key Private-Key) stream)
-  (print-unreadable-object (key stream :type t)
-    (format stream "~&~t key:~x ~&~t key:~d ~&~t key:~x"
-            (get-slot :vector 'key key) (get-slot :int 'key key) (get-slot :hex-string 'key key))))
-
-;; Errors
-
-(defmacro define-ecc-error (error-name)
-  (let ((object (gensym))
-        (out (gensym)))
-    `(progn
-       (define-condition ,error-name (error)
-         ((msg :initarg :msg :reader error-msg)))
-       (defmethod print-object ((,object ,error-name) ,out)
-         (format ,out "~a" (error-msg ,object))))))
-
-
-(define-ecc-error invalid-operation-error)
-(define-ecc-error invalid-type-error)
