@@ -28,7 +28,9 @@
    :get-key
 
    ;; classes
+   :Key
    :Private-Key
+   :Public-Key
    :ECDH-Private-Key
    :ECDH-Public-Key
    :ECDH-Secret
@@ -44,6 +46,7 @@
    :*p17*
    :*secp256k1*
    :*secp192r1*
+   :*inf-point*
 
    ;;;; internal (not to be exported)
 
@@ -59,12 +62,12 @@
    :point-on-curve-p
    :at-x
    :point-inverse
-   :add-point
+   :add-points
    :mul-point
    :order-of-point
 
   ;; Errors
-   :invalid-ecc-error
+   :invalid-operation-error
    :invalid-type-error
 
    ;; Curve and Point classes

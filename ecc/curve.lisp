@@ -52,7 +52,8 @@
     (assert (not
              (= 0 (add-mod (mul-mod 4 (expt-mod a 3 p) p)
                            (mul-mod 27 (expt-mod b 2 p) p)
-                           p))))))
+                           p))))
+    t))
 
 (defmethod point-on-curve-p ((ec Curve) (pt Point))
   (let ((x (get-slot :int 'x pt))

@@ -29,7 +29,7 @@
                 (cond
                   ((and (eq slot 'g)
                         (typep object 'Curve)) (assert (typep (slot-value object slot) 'Point)))
-                  (t (assert (typep (slot-value object slot) 'octetector)))))
+                  (t (assert (typep (slot-value object slot) 'octet-vector)))))
 
      (defmethod get-slot ((spec (eql :int)) slot (object ,class) )
        (ironclad:octets-to-integer (slot-value object slot)))
@@ -42,6 +42,44 @@
 
      (defmethod get-slot ((spec (eql :point)) slot (object ,class))
        (slot-value object slot))))
+
+;; Instance macros
+
+(defmacro define-slot-type-parser (classname &rest typespeclist)
+  (let ((i (gensym))
+        (accessor (gensym))
+        (typename (gensym)))
+    `(defmethod initialize-instance :after ((object ,classname) &key)
+                (do ((,i 0 (+ ,i 2))
+                     (,accessor)
+                     (,typename))
+                    ((>= ,i (length ',typespeclist)))
+                  (setf ,accessor (nth ,i ',typespeclist))
+                  (setf ,typename (nth (1+ ,i) ',typespeclist))
+                  (when (typep (slot-value object ,accessor) '(simple-array character))
+                    (setf (slot-value object ,accessor) (ironclad:hex-string-to-byte-array (slot-value object ,accessor))))
+                  (when (typep (slot-value object ,accessor) 'integer)
+                    (setf (slot-value object ,accessor) (ironclad:integer-to-octets (slot-value object ,accessor))))))))
+
+(defmacro define-slot-type-validator (classname &rest typespeclist)
+  (let ((i (gensym))
+        (accessor (gensym))
+        (typename (gensym)))
+    `(defmethod initialize-instance :around ((object ,classname) &key)
+                (let ((instance (call-next-method)))
+                  (do ((,i 0 (+ ,i 2))
+                       (,accessor)
+                       (,typename))
+                      ((>= ,i (length ',typespeclist)) instance)
+                    (setf ,accessor (nth ,i ',typespeclist))
+                    (setf ,typename (nth (1+ ,i) ',typespeclist))
+                    (unless (typep (slot-value object ,accessor) ,typename)
+                      (error 'invalid-type-error
+                             :msg (format nil "~a must be of type ~a instead of ~a.
+                                               The program will parse integers and hex-strings to correct type."
+                                          ,accessor ,typename (type-of (slot-value object ,accessor)))))
+                    instance)))))
+
 
 
 ;; Errors

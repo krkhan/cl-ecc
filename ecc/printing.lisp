@@ -29,7 +29,7 @@
             (get-slot :vector 'n ec) (get-slot :int 'n ec) (get-slot :hex-string 'n ec)
             (get-slot :vector 'h ec) (get-slot :int 'h ec) (get-slot :hex-string 'h ec))))
 
-(defmethod print-object ((key Private-Key) stream)
+(defmethod print-object ((key Key) stream)
   (print-unreadable-object (key stream :type t)
     (format stream "~&~t key:~x ~&~t key:~d ~&~t key:~x"
             (get-slot :vector 'key key) (get-slot :int 'key key) (get-slot :hex-string 'key key))))
@@ -58,13 +58,12 @@
     (format stream "~&~t hash:~x ~&~t hash:~d ~&~t hash:~x"
             (get-slot :vector 'hash msghash) (get-slot :int 'hash msghash) (get-slot :hex-string 'hash msghash))))
 
-(defmethod print-object ((pubkey ECDSA-Public-Key) stream)
-  (print-unreadable-object (pubkey stream :type t)
-    (format stream "~&~t version-byte:~x ~&~t version-byte:~d ~&~t version-byte:~x
-                   ~&~t x:~x ~&~t x:~d ~&~t x:~x
-                   ~&~t y:~x ~&~t y:~d ~&~t y:~x
-                   ~&~t key:~x ~&~t key:~d ~&~t key:~x"
-            (get-slot :vector 'version-byte pubkey) (get-slot :int 'version-byte pubkey) (get-slot :hex-string 'version-byte pubkey)
-            (get-slot :vector 'x pubkey) (get-slot :int 'x pubkey) (get-slot :hex-string 'x pubkey)
-            (get-slot :vector 'y pubkey) (get-slot :int 'y pubkey) (get-slot :hex-string 'y pubkey)
-            (get-key :vector pubkey) (get-key :int pubkey) (get-key :hex-string pubkey))))
+;; (defmethod print-object ((pubkey ECDSA-Public-Key) stream)
+;;   (print-unreadable-object (pubkey stream :type t)
+;;     (format stream "~&~t version-byte:~x ~&~t version-byte:~d ~&~t version-byte:~x
+;;                    ~&~t x:~x ~&~t x:~d ~&~t x:~x
+;;                    ~&~t y:~x ~&~t y:~d ~&~t y:~x
+;;                    ~&~t key:~x ~&~t key:~d ~&~t key:~x"
+;;             (get-slot :vector 'version-byte pubkey) (get-slot :int 'version-byte pubkey) (get-slot :hex-string 'version-byte pubkey)
+;;             (get-slot :vector 'x pubkey) (get-slot :int 'x pubkey) (get-slot :hex-string 'x pubkey)
+;;             (get-slot :vector 'y pubkey) (get-slot :int 'y pubkey) (get-slot :hex-string 'y pubkey))))

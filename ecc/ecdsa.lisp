@@ -16,10 +16,11 @@
   (:documentation "Returns: Predicate. Test if signature is valid"))
 
 (defgeneric ecdsa-gen-pub (curve priv &key version-byte)
-  (:documentation "Returns: number or hex-string with hex key set to T"))
+  (:documentation "Returns: ECDSA-Public-Key"))
 
 
 ;; ECDSA Classes
+(defclass ECDSA-Private-Key (Private-Key) ())
 
 (defclass ECDSA-Signature ()
   ((r :initarg :r
@@ -34,31 +35,40 @@
          :initform (error 'unbound-slot :msg ":hash must be initialized")
          :type 'octet-vector)))
 
-(defclass ECDSA-Public-Key (Point)
+(defclass ECDSA-Public-Key (Public-Key Point)
   ((version-byte :initarg :version-byte
                  :initform (error 'unbound-slot :msg  ":version-byte must be initialized")
                  :type 'octet-vector)))
 
-(defclass ECDSA-Private-Key (Private-Key) ())
+(defmethod initialize-instance :after ((pubkey ECDSA-Public-Key) &rest args)
+  (declare (ignore args))
+  (setf (slot-value pubkey 'key) (concatenate 'octet-vector
+                                              (get-slot :vector 'version-byte pubkey)
+                                              (get-slot :vector 'x pubkey)
+                                              (get-slot :vector 'y pubkey))))
+
+;; Parser and validators
+
+(define-slot-type-parser ECDSA-Message-Hash
+    hash octet-vector)
+(define-slot-type-parser ECDSA-Signature
+    r octet-vector
+    s octet-vector)
+(define-slot-type-validator ECDSA-Message-Hash)
+(define-slot-type-validator ECDSA-Signature
+    r octet-vector
+    s octet-vector)
+(define-slot-type-validator ECDSA-Public-key
+    x octet-vector
+    y octet-vector
+    version-byte octet-vector
+    key octet-vector)
 
 ;; Reader functions
 
 (define-generic-reader-functions ECDSA-Signature)
 (define-generic-reader-functions ECDSA-Message-Hash)
 (define-generic-reader-functions ECDSA-Public-Key)
-
-(defmethod get-key ((spec (eql :vector)) (object ECDSA-Public-Key))
-  (concatenate 'octet-vector
-               (get-slot :vector 'version-byte object)
-               (get-slot :vector 'x object)
-               (get-slot :vector 'y object)) )
-
-(defmethod get-key ((spec (eql :int)) (object ECDSA-Public-Key))
-  (ironclad:octets-to-integer (get-key :vector object)))
-
-(defmethod get-key ((spec (eql :hex-string)) (object ECDSA-Public-Key))
-  (ironclad:byte-array-to-hex-string (get-key :vector object)))
-
 
 ;; ECDSA methods
 
@@ -72,23 +82,24 @@
 
 (defmethod ecdsa-gen-sig ((ec Curve) (msghash ECDSA-Message-Hash) (priv ECDSA-Private-Key) (k integer))
   (assert (and (< 0 k) (< k (get-slot :int 'n ec))))
-  (let ((rpoint (mul-point c (get-slot :point 'g ec) k)))
+  (let ((rpoint (mul-point ec (get-slot :point 'g ec) k)))
     (make-instance
       'ECDSA-Signature
-      :r (x rpoint)
-      :s (mul-mod
-           (inv-mod k (get-slot :int 'n c))
+      :r (get-slot :vector 'x rpoint)
+      :s (ironclad:integer-to-octets
+          (mul-mod
+           (inv-mod k (get-slot :int 'n ec))
            (add-mod
-            (get-hash :int msghash)
-             (mul-mod (x rpoint) (get-slot :int 'key priv) (get-slot :int 'n c))
-             (get-slot :int 'n c))
-           (get-slot :int 'n c)))))
+            (get-slot :int 'hash msghash)
+            (mul-mod (get-slot :int 'x rpoint) (get-slot :int 'key priv) (get-slot :int 'n ec))
+            (get-slot :int 'n ec))
+           (get-slot :int 'n ec))))))
 
-(defmethod ecdsa-verify-sig ((c Curve) (msghash ECDSA-Message-Hash) (sig ECDSA-Signature) (pub Point))
+(defmethod ecdsa-verify-sig ((c Curve) (msghash ECDSA-Message-Hash) (sig ECDSA-Signature) (pub ECDSA-Public-Key))
   (assert (point-on-curve-p c pub))
   (let* ((n (get-slot :int 'n c))
          (r (get-slot :int 'r sig))
-         (w (inv-mod (s sig) n))
+         (w (inv-mod (get-slot :int 's sig) n))
          (u1 (mul-mod w (get-slot :int 'hash msghash) n))
          (u2 (mul-mod w r n))
          (pt (add-points
@@ -101,11 +112,12 @@
 
 (defmethod ecdsa-gen-pub ((c Curve) (priv ECDSA-Private-Key) &key (version-byte 04))
   "Returns: ECDSA-Public-Key"
-  (let ((priv-key (get-slot :int 'key priv))
+  (let* ((priv-key (get-slot :int 'key priv))
         (n (get-slot :int 'n c))
-        (g (get-slot :point 'g c)))
+        (g (get-slot :point 'g c))
+        (point-key (mul-point c g priv-key)))
     (assert (and (< 0 priv-key) (< priv-key n)))
-    (let ((pub-key (mul-point c g priv-key)))
-      (change-class pub-key
-                    'ECDSA-Public-Key
-                    :version-byte (ironclad:integer-to-octets version-byte)))))
+    (make-instance 'ECDSA-Public-Key
+                   :x (slot-value point-key 'x)
+                   :y (slot-value point-key 'y)
+                   :version-byte (ironclad:integer-to-octets version-byte))))

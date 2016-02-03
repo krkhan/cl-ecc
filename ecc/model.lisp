@@ -35,10 +35,18 @@
 
 
 ;; Generic Classes and reader functions
-(defclass Private-Key ()
+(defclass Key ()
   ((key :initarg :key
-        :initform (error 'unbound-slot :msg  ":key must be initialized")
+        :initform -1
         :type 'octet-vector)))
+
+(defclass Private-Key (Key) ())
+(defclass Public-key (Key) ())
+
+(define-slot-type-parser Key
+    key octet-vector)
+(define-slot-type-validator Key
+    key octet-vector)
 
 (defclass Point ()
   ((x :initarg :x
@@ -47,6 +55,12 @@
    (y :initarg :y
       :initform (error 'unbound-slot :msg  ":y must be initialized")
       :type 'octet-vector)))
+(define-slot-type-parser Point
+    x octet-vector
+    y octet-vector)
+(define-slot-type-validator Point
+    x octet-vector
+    y octet-vector)
 
 (defclass Curve ()
   ((a :initarg :a
@@ -67,23 +81,25 @@
    (h :initarg :h
       :initform (error 'unbound-slot :msg ":h must be initialized")
       :type 'octet-vector)))
+(define-slot-type-parser  Curve
+    a octet-vector
+    b octet-vector
+    p octet-vector
+    g Point
+    n octet-vector
+    h octet-vector)
+(define-slot-type-validator Curve
+    a octet-vector
+    b octet-vector
+    p octet-vector
+    g Point
+    n octet-vector
+    h octet-vector)
 
 ;; Reader functions
-(define-generic-reader-functions Private-Key)
+(define-generic-reader-functions Key)
 (define-generic-reader-functions Point)
 (define-generic-reader-functions Curve)
-
-(defmethod get-key ((spec (eql :vector)) (object Private-key))
-  (concatenate 'octet-vector
-               (get-slot :vector 'version-byte object)
-               (get-slot :vector 'x object)
-               (get-slot :vector 'y object)) )
-
-(defmethod get-key ((spec (eql :int)) (object Private-key))
-  (ironclad:octets-to-integer (get-key :vector object)))
-
-(defmethod get-key ((spec (eql :hex-string)) (object Private-key))
-  (ironclad:byte-array-to-hex-string (get-key :vector object)))
 
 
 (defvar *inf-point* (make-instance 'Point

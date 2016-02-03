@@ -1,6 +1,6 @@
 ;;;; secp192r1-test.lisp
 
-(in-package #:cl-ecc.test)
+(in-package #:ecc-tests)
 
 (define-curve-test-parameters secp192r1
     :mulpoint1 (1 "188DA80EB03090F67CBF20EB43A18800F4FF0AFD82FF101207192B95FFC8DA78631011ED6B24CDD573F977A11E794811")

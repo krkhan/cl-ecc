@@ -7,7 +7,8 @@
     (:tags '(mod-tests))
   (assert-eql 4  (cl-ecc::add-mod 34 24 9))
   (assert-eql 10 (cl-ecc::add-mod 34 -84 15))
-  (assert-eql -1 (cl-ecc::add-mod 3 -2 -2)))
+  (assert-eql -1 (cl-ecc::add-mod 3 -2 -2))
+  (assert-error 'arithmetic-error (cl-ecc::add-mod 0 0 0)))
 
 (define-test ecc-tests::sub-mod
     (:tags '(mod-tests))
