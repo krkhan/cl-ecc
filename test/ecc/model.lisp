@@ -38,9 +38,9 @@
                     (,sig (make-instance 'cl-ecc.test::ECDSA-Signature
                                          :s (gethash "s" ,test)
                                          :r (gethash "r" ,test))))
-               (cl-ecc.test::assert-true (cl-ecc.test::point-equalp ,pub (ecdsa-gen-pub ,c ,priv)))
-               (cl-ecc.test::assert-true (cl-ecc.test::sig-equalp ,sig (ecdsa-gen-sig ,c ,msghash ,priv ,k)))
-               (cl-ecc.test::assert-true (cl-ecc.test::ecdsa-verify-sig ,c ,msghash ,sig ,pub)))))))))
+               (assert-true (point-equalp ,pub (ecdsa-gen-pub ,c ,priv)))
+               (assert-true (sig-equalp ,sig (ecdsa-gen-sig ,c ,msghash ,priv ,k)))
+               (assert-true (ecdsa-verify-sig ,c ,msghash ,sig ,pub)))))))))
 
 (defmacro define-curve-test-parameters (curve &key mulpoint1 mulpoint2 mulpoint3 mulpoint4 mulpoint5 mulpoint6
                                                      msghash1 d1 pub-x1 pub-y1 k1 r1 s1
