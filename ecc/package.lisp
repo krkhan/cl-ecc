@@ -2,9 +2,7 @@
 
 (defpackage #:cl-ecc
   (:use #:cl
-        #:ironclad
-        #:iterate
-        #:com.gigamonkeys.macro-utilities)
+        #:iterate)
 
   (:shadow :null)
 

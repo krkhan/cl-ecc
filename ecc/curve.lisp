@@ -50,8 +50,8 @@
              (< b p)
              (> p 2)))
     (assert (not
-             (= 0 (add-mod (mul-mod 4 (expt-mod a 3 p) p)
-                           (mul-mod 27 (expt-mod b 2 p) p)
+             (= 0 (add-mod (mul-mod 4 (ironclad:expt-mod a 3 p) p)
+                           (mul-mod 27 (ironclad:expt-mod b 2 p) p)
                            p))))
     t))
 
@@ -63,8 +63,8 @@
         (b (get-slot :int 'b ec)))
     (when (point-equalp pt *inf-point*)
       (return-from point-on-curve-p t))
-    (let ((left (expt-mod y 2 p))
-          (right (add-mod (expt-mod x 3 p)
+    (let ((left (ironclad:expt-mod y 2 p))
+          (right (add-mod (ironclad:expt-mod x 3 p)
                           (mul-mod a x p)
                           b
                           p)))
@@ -75,13 +75,12 @@
         (b (get-slot :int 'b ec))
         (p (get-slot :int 'p ec)))
     (assert (< x p))
-    (let* ((ysq (add-mod (expt-mod x 3 p) (mul-mod a x p) b p))
+    (let* ((ysq (add-mod (ironclad:expt-mod x 3 p) (mul-mod a x p) b p))
            (y (sqrt-mod ysq p)))
       (values y (- p y)))))
 
 (defmethod point-inverse ((ec Curve) (pt Point))
-  (let ((x (get-slot :int 'x pt))
-        (y (get-slot :int 'y pt))
+  (let ((y (get-slot :int 'y pt))
         (p (get-slot :int 'p ec)))
     (make-instance (type-of pt)
                    :x (get-slot :vector 'x pt)
@@ -126,8 +125,8 @@
                               p1-y
                               p))
       (make-instance 'Point
-                     :x (integer-to-octets result-x)
-                     :y (integer-to-octets result-y)))))
+                     :x (ironclad:integer-to-octets result-x)
+                     :y (ironclad:integer-to-octets result-y)))))
 
 
 (defmethod mul-point ((c Curve) (pt Point) (d integer))

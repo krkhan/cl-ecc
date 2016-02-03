@@ -7,12 +7,6 @@
    "General reader function that gets value from object according to spec.
     Arguments; spec: :int, :vector, :hex-string, :point"))
 
-(defgeneric get-key (spec object)
-  (:documentation
-   "Get key from object and returns according to spec.
-    Arguments for spec: :int, :vector, :hex-string"))
-
-
 ;; Model
 
 (defmacro define-elliptic-curve (name sym &key par-a par-b par-p par-g par-n par-h)
@@ -24,14 +18,14 @@
 
           (defvar ,sym
             (make-instance ',curve-class-name
-                           :a (hex-string-to-byte-array ,par-a)
-                           :b (hex-string-to-byte-array ,par-b)
-                           :p (hex-string-to-byte-array ,par-p)
+                           :a (ironclad:hex-string-to-byte-array ,par-a)
+                           :b (ironclad:hex-string-to-byte-array ,par-b)
+                           :p (ironclad:hex-string-to-byte-array ,par-p)
                            :g (make-instance ',point-class-name
-                                             :x (hex-string-to-byte-array (subseq ,par-g 0 (/ (length ,par-g) 2)))
-                                             :y (hex-string-to-byte-array (subseq ,par-g (/ (length ,par-g) 2))))
-                           :n (hex-string-to-byte-array ,par-n)
-                           :h (hex-string-to-byte-array ,par-h))))))
+                                             :x (ironclad:hex-string-to-byte-array (subseq ,par-g 0 (/ (length ,par-g) 2)))
+                                             :y (ironclad:hex-string-to-byte-array (subseq ,par-g (/ (length ,par-g) 2))))
+                           :n (ironclad:hex-string-to-byte-array ,par-n)
+                           :h (ironclad:hex-string-to-byte-array ,par-h))))))
 
 
 ;; Generic Classes and reader functions
