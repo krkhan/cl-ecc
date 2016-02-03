@@ -2,15 +2,12 @@
 
 (in-package #:cl-ecc)
 
-
-(defmacro define-constant (name value &optional doc)
-  `(defconstant ,name (if (boundp ',name) (symbol-value ',name) ,value)
-                      ,@(when doc (list doc))))
-
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (deftype octet-vector (&optional length)
     (let ((length (or length '*)))
       `(simple-array (unsigned-byte 8) (,length)))))
+
+;;;; Types
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun octet-vector (length)
@@ -19,47 +16,37 @@
                 :initial-element 0)))
 
 
-;; Model helper macros
+;;;; Main
 
-(defmacro define-generic-reader-functions (class)
-
+;; Reader function macros
+(defmacro define-custom-octet-reader-functions (class &rest slots)
   `(progn
+     ,@ (mapcar #'(lambda (slot) (generate-reader-functions class slot)) slots)))
 
-     (defmethod get-slot :before (slot (object ,class) spec)
-                (cond
-                  ((and (eq slot 'g)
-                        (typep object 'Curve)) (assert (typep (slot-value object slot) 'Point)))
-                  (t (assert (typep (slot-value object slot) 'octet-vector)))))
+(defmacro define-custom-composite-octet-reader-functions (class &rest args)
+               `(progn
+                  ,@ (mapcar #'(lambda (fn-def)
+                                 (let ((fn (first fn-def))
+                                       (fn-slots (rest fn-def)))
+                                   (print fn-slots)
+                                   (mapcan #'(lambda (slots)
+                                               (generate-composite-reader-functions class fn slots)) (list fn-slots)))) args)))
 
-     (defmethod get-slot ((spec (eql :int)) slot (object ,class) )
-       (ironclad:octets-to-integer (slot-value object slot)))
 
-     (defmethod get-slot ((spec (eql :vector)) slot (object ,class) )
-       (slot-value object slot))
-
-     (defmethod get-slot ((spec (eql :hex-string)) slot (object ,class))
-       (ironclad:byte-array-to-hex-string (slot-value object slot)))
-
-     (defmethod get-slot ((spec (eql :point)) slot (object ,class))
-       (slot-value object slot))))
-
-;; Instance macros
-
-(defmacro define-slot-type-parser (classname &rest typespeclist)
+;; Parser macros
+(defmacro define-slot-to-octet-vector-parser (classname &rest typespeclist)
   (let ((i (gensym))
-        (accessor (gensym))
-        (typename (gensym)))
+        (accessor (gensym)))
     `(defmethod initialize-instance :after ((object ,classname) &key)
-                (do ((,i 0 (+ ,i 2))
-                     (,accessor)
-                     (,typename))
+                (do ((,i 0 (+ ,i 1))
+                     (,accessor))
                     ((>= ,i (length ',typespeclist)))
                   (setf ,accessor (nth ,i ',typespeclist))
-                  (setf ,typename (nth (1+ ,i) ',typespeclist))
-                  (when (typep (slot-value object ,accessor) '(simple-array character))
-                    (setf (slot-value object ,accessor) (ironclad:hex-string-to-byte-array (slot-value object ,accessor))))
-                  (when (typep (slot-value object ,accessor) 'integer)
-                    (setf (slot-value object ,accessor) (ironclad:integer-to-octets (slot-value object ,accessor))))))))
+                  (when (slot-boundp object ,accessor)
+                    (when (typep (slot-value object ,accessor) '(simple-array character))
+                      (setf (slot-value object ,accessor) (ironclad:hex-string-to-byte-array (slot-value object ,accessor))))
+                    (when (typep (slot-value object ,accessor) 'integer)
+                      (setf (slot-value object ,accessor) (ironclad:integer-to-octets (slot-value object ,accessor)))))))))
 
 (defmacro define-slot-type-validator (classname &rest typespeclist)
   (let ((i (gensym))
@@ -79,6 +66,48 @@
                                                The program will parse integers and hex-strings to correct type."
                                           ,accessor ,typename (type-of (slot-value object ,accessor)))))
                     instance)))))
+
+;; Helpers
+
+(defun generate-reader-functions (class slot)
+  `(progn
+     (defgeneric ,slot (object &key &allow-other-keys)
+       (:documentation "General octet reader function. Keys: :int :hex-string. Default is 'octet-vector"))
+
+     (defmethod ,slot :around ((object ,class) &key int hex-string)
+                (let ((result (call-next-method)))
+                  (when (equal int t)
+                    (assert (typep result 'octet-vector))
+                    (return-from ,slot (ironclad:octets-to-integer result)))
+                  (when (equal hex-string t)
+                    (assert (typep result 'octet-vector))
+                    (return-from ,slot (ironclad:byte-array-to-hex-string result)))
+                  result))
+     (defmethod ,slot ((object ,class) &key)
+       (slot-value object ',slot))))
+
+
+
+(defun generate-composite-reader-functions (class name &rest slots)
+  `(progn
+
+     (defgeneric ,name (object &key int hex-string &allow-other-keys)
+       (:documentation "General octet reader function. Keys: :int :hex-string. Default is 'octet-vector"))
+
+     (defmethod ,name ((object ,class) &key)
+       (concatenate 'octet-vector
+                     ,@ (mapcar #'(lambda (slot) `(,slot object)) (car slots))))
+
+     (defmethod ,name :around ((object ,class) &key int hex-string)
+                (let ((result (call-next-method)))
+                  (when (equal int t)
+                    (assert (typep result 'octet-vector))
+                    (return-from ,name (ironclad:octets-to-integer result)))
+                  (when (equal hex-string t)
+                    (assert (typep result 'octet-vector))
+                    (return-from ,name (ironclad:byte-array-to-hex-string result)))
+                  result))))
+
 
 
 

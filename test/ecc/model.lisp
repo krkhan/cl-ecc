@@ -9,11 +9,11 @@
 
       `(progn
 
-         (define-test ,(cl-ecc.test::conc-sym-name 'valid-curve-p- name)
+         (define-test ,(cl-ecc.test::conc-sym-name 'cl-ecc::valid-curve-p- name)
              (:tags '(internal ,name parameters))
-           (assert-true (valid-curve-p ,ec))
-           (assert-true (point-on-curve-p ,ec (cl-ecc.test::get-slot :vector 'cl-ecc::g ,ec)))
-           (assert-true (point-on-curve-p ,ec cl-ecc.test::*inf-point*)))
+           (assert-true (cl-ecc::valid-curve-p ,ec))
+           (assert-true (cl-ecc::point-on-curve-p ,ec (cl-ecc::g ,ec)))
+           (assert-true (cl-ecc::point-on-curve-p ,ec cl-ecc.test::*inf-point*)))
 
          (define-test ,(cl-ecc.test::conc-sym-name 'point-multiply- name)
              (:tags '(internal ,name parameters))
@@ -21,7 +21,7 @@
              (loop
                 for ,k being the hash-keys in ,mulpoints using (hash-value ,v)
                 do
-                  (assert-true (point-equalp (mul-point ,ec (get-slot :point 'cl-ecc::g ,ec) ,k) ,v)))))
+                  (assert-true (cl-ecc::point-equalp (cl-ecc::mul-point ,ec (cl-ecc::g ,ec) ,k) ,v)))))
 
 
          (define-test ,(conc-sym-name 'ecdsa- name)
@@ -38,8 +38,8 @@
                     (,sig (make-instance 'cl-ecc.test::ECDSA-Signature
                                          :s (gethash "s" ,test)
                                          :r (gethash "r" ,test))))
-               (assert-true (point-equalp ,pub (ecdsa-gen-pub ,c ,priv)))
-               (assert-true (sig-equalp ,sig (ecdsa-gen-sig ,c ,msghash ,priv ,k)))
+               (assert-true (cl-ecc::point-equalp ,pub (ecdsa-gen-pub ,c ,priv)))
+               (assert-true (ecdsa-sig-equalp ,sig (ecdsa-gen-sig ,c ,msghash ,priv ,k)))
                (assert-true (ecdsa-verify-sig ,c ,msghash ,sig ,pub)))))))))
 
 (defmacro define-curve-test-parameters (curve &key mulpoint1 mulpoint2 mulpoint3 mulpoint4 mulpoint5 mulpoint6

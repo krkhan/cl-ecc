@@ -9,7 +9,8 @@
   :license "Specify license here"
   :depends-on (#:ironclad
                #:iterate
-               #:com.gigamonkeys.macro-utilities)
+               #:com.gigamonkeys.macro-utilities
+               #:alexandria)
   :serial t
   :components ((:module "ecc"
                         :serial t

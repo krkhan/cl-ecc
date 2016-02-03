@@ -2,11 +2,6 @@
 
 (in-package #:cl-ecc)
 
-(defgeneric get-slot (spec slot object)
-  (:documentation
-   "General reader function that gets value from object according to spec.
-    Arguments; spec: :int, :vector, :hex-string, :point"))
-
 ;; Model
 
 (defmacro define-elliptic-curve (name sym &key par-a par-b par-p par-g par-n par-h)
@@ -29,18 +24,19 @@
 
 
 ;; Generic Classes and reader functions
-(defclass Key ()
+(defclass Key () ())
+
+(defclass Private-Key (Key)
   ((key :initarg :key
-        :initform -1
+        :initform (error 'unbound-slot :msg ":key must be initialized")
         :type 'octet-vector)))
 
-(defclass Private-Key (Key) ())
-(defclass Public-key (Key) ())
+(define-custom-octet-reader-functions Private-Key key)
+(define-slot-to-octet-vector-parser Private-key key)
+(define-slot-type-validator Private-Key
+    key octet-vector)
 
-(define-slot-type-parser Key
-    key octet-vector)
-(define-slot-type-validator Key
-    key octet-vector)
+(defclass Public-key (Key) ())
 
 (defclass Point ()
   ((x :initarg :x
@@ -49,12 +45,13 @@
    (y :initarg :y
       :initform (error 'unbound-slot :msg  ":y must be initialized")
       :type 'octet-vector)))
-(define-slot-type-parser Point
-    x octet-vector
-    y octet-vector)
+
+(define-custom-octet-reader-functions Point x y)
+(define-slot-to-octet-vector-parser Point x y )
 (define-slot-type-validator Point
     x octet-vector
     y octet-vector)
+
 
 (defclass Curve ()
   ((a :initarg :a
@@ -66,7 +63,8 @@
    (p :initarg :p
       :initform (error 'unbound-slot :msg ":p must be initialized")
       :type 'octet-vector)
-   (g :initarg :g
+   (g :reader g
+      :initarg :g
       :initform (error 'unbound-slot :msg ":g must be initialized")
       :type 'Point)
    (n :initarg :n
@@ -75,13 +73,7 @@
    (h :initarg :h
       :initform (error 'unbound-slot :msg ":h must be initialized")
       :type 'octet-vector)))
-(define-slot-type-parser  Curve
-    a octet-vector
-    b octet-vector
-    p octet-vector
-    g Point
-    n octet-vector
-    h octet-vector)
+(define-slot-to-octet-vector-parser  Curve a b p n h )
 (define-slot-type-validator Curve
     a octet-vector
     b octet-vector
@@ -91,9 +83,8 @@
     h octet-vector)
 
 ;; Reader functions
-(define-generic-reader-functions Key)
-(define-generic-reader-functions Point)
-(define-generic-reader-functions Curve)
+(define-custom-octet-reader-functions Curve a b p n h)
+(define-slot-to-octet-vector-parser Curve a b p n h)
 
 
 (defvar *inf-point* (make-instance 'Point

@@ -14,13 +14,11 @@
 
 (defclass ElGamalMessage ()
   ((x :initarg :x
-      :reader pubkey
       :type 'ECDSA-Public-Key)
    (y :initarg :y
-      :reader ciphertext
       :type 'Elgamalciphertext)))
 
-(define-generic-reader-functions ElGamalMessage)
+(define-custom-octet-reader-functions ElGamalMessage x y)
 
 (defclass ElGamalPlaintext (Point)())
 (defclass ElGamalCiphertext (Point) ())
@@ -42,8 +40,8 @@
                       'ElGamalCiphertext))))
 
 (defmethod elgamal-decrypt ((c Curve) (msg ElGamalMessage) (my-priv ECDH-Private-Key))
-  (let ((partner-pub (get-slot :point 'x msg))
-        (ciphertext (get-slot :point 'y msg)))
+  (let ((partner-pub (x msg))
+        (ciphertext (y msg)))
     (assert (point-on-curve-p c partner-pub))
     (assert (point-on-curve-p c ciphertext))
     (change-class (add-points c
