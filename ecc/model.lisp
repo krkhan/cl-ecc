@@ -6,9 +6,14 @@
 
 (defmacro define-elliptic-curve (name sym &key par-a par-b par-p par-g par-n par-h)
     (let ((curve-class-name (intern (concatenate 'string (string 'Curve-) (string name))))
-          (point-class-name (intern (concatenate 'string (string 'Point-) (string name)))))
+          (point-class-name (intern (concatenate 'string (string 'Point-) (string name))))
+          (point-size (/ (length par-n) 2)))
       `(progn
-          (defclass ,point-class-name (Point) ())
+         (defclass ,point-class-name (Point)
+           ((x :initarg  :x
+               :type '(octet-vector ,point-size))
+            (y :initarg :y
+               :type '(octet-vector ,point-size))))
           (defclass ,curve-class-name (Curve) ())
 
           (defvar ,sym
@@ -28,29 +33,23 @@
 
 (defclass Private-Key (Key)
   ((key :initarg :key
-        :initform (error 'unbound-slot :msg ":key must be initialized")
         :type 'octet-vector)))
 
 (define-custom-octet-reader-functions Private-Key key)
 (define-slot-to-octet-vector-parser Private-key key)
-(define-slot-type-validator Private-Key
-    key octet-vector)
+
 
 (defclass Public-key (Key) ())
 
 (defclass Point ()
   ((x :initarg :x
-      :initform (error 'unbound-slot :msg ":x must be initialized")
       :type '(octet-vector))
    (y :initarg :y
-      :initform (error 'unbound-slot :msg  ":y must be initialized")
       :type 'octet-vector)))
 
 (define-custom-octet-reader-functions Point x y)
 (define-slot-to-octet-vector-parser Point x y )
-(define-slot-type-validator Point
-    x octet-vector
-    y octet-vector)
+
 
 
 (defclass Curve ()
@@ -74,13 +73,7 @@
       :initform (error 'unbound-slot :msg ":h must be initialized")
       :type 'octet-vector)))
 (define-slot-to-octet-vector-parser  Curve a b p n h )
-(define-slot-type-validator Curve
-    a octet-vector
-    b octet-vector
-    p octet-vector
-    g Point
-    n octet-vector
-    h octet-vector)
+
 
 ;; Reader functions
 (define-custom-octet-reader-functions Curve a b p n h)

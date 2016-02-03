@@ -28,7 +28,6 @@
                   ,@ (mapcar #'(lambda (fn-def)
                                  (let ((fn (first fn-def))
                                        (fn-slots (rest fn-def)))
-                                   (print fn-slots)
                                    (mapcan #'(lambda (slots)
                                                (generate-composite-reader-functions class fn slots)) (list fn-slots)))) args)))
 

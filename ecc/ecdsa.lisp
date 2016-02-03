@@ -96,6 +96,8 @@
         (g (g c))
         (point-key (mul-point c g priv-key)))
     (assert (and (< 0 priv-key) (< priv-key n)))
+    (assert (and (= (length (x point-key)) (length (x (g c))))
+                (= (length (y point-key)) (length (y (g c))))))
     (make-instance 'ECDSA-Public-Key
                    :x (x point-key)
                    :y (y point-key)

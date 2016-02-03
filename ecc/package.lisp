@@ -26,6 +26,7 @@
    ;; reader macros
    :define-slot-to-octet-vector-parser
    :define-custom-octet-reader-functions
+   :define-custom-composite-octet-reader-functions
    :define-slot-type-validator
 
    ;; classes
@@ -51,14 +52,15 @@
    :*secp192r1*
    :*inf-point*
 
-  ;; Errors
+   ;; Types
+   :octet-vector
+
+   ;; Errors
    :invalid-operation-error
    :invalid-type-error))
 
   ;;  ;;;; internal (not to be exported)
 
-  ;;  ;; types
-  ;;  :octet-vector
 
   ;;  ;; math-mod
   ;;  :add-mod :sub-mod :mul-mod :inv-mod :div-mod :expt-mod :sqrt-mod

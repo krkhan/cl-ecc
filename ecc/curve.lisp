@@ -93,7 +93,8 @@
         (p2-x (x p2 :int t))
         (p2-y (y p2 :int t))
         (p (p ec :int t))
-        (a (a ec :int t)))
+        (a (a ec :int t))
+        (point-bit-size (* 8 (length (x (g ec))))))
     (when (point-equalp p1 *inf-point*)
       (return-from add-points p2))
     (when (point-equalp p2 *inf-point*)
@@ -124,9 +125,11 @@
                                        p)
                               p1-y
                               p))
-      (make-instance 'Point
-                     :x (ironclad:integer-to-octets result-x)
-                     :y (ironclad:integer-to-octets result-y)))))
+      (make-instance (type-of (g ec))
+                     :x (ironclad:integer-to-octets result-x :n-bits point-bit-size
+                                                    )
+                     :y (ironclad:integer-to-octets result-y :n-bits point-bit-size
+                                                    )))))
 
 
 (defmethod mul-point ((c Curve) (pt Point) (d integer))
