@@ -48,7 +48,7 @@
         (make-instance 'ECDSA-Signature
                        :r (x rpoint)
                        :s (with-octets-to-integer (hash key x)
-                            (mul-mod (inv-mod k n) (add-mod hash (mul-mod x key n) n) n)))))))
+                            (mul-mod (ironclad::modular-inverse k n) (add-mod hash (mul-mod x key n) n) n)))))))
 
 (defmethod ecdsa-verify-sig ((ec Curve) (msghash ECDSA-Message-Hash) (sig ECDSA-Signature) (pub ECDSA-Public-Key))
   (assert (point-on-curve-p ec pub))
@@ -56,7 +56,7 @@
     (with-accessors ((n n) (g g)) ec
       (with-accessors ((hash hash)) msghash
         (with-octets-to-integer (r s n hash)
-          (let* ((w (inv-mod s n))
+          (let* ((w (ironclad::modular-inverse s n))
                  (u1 (mul-mod w hash n))
                  (u2 (mul-mod w r n))
                  (pt (add-points ec (mul-point ec g u1) (mul-point ec pub u2)))

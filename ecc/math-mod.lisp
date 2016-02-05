@@ -17,6 +17,9 @@
   (let ((lastindex (1- (length args))))
     (mod (apply '* (subseq args 0 lastindex)) (nth lastindex args))))
 
+;; inv-mod is being phased out for ironclad::modular-inverse.
+;; It might cause a bug as it returns 0 where inv-mod fails.
+;; I think.
 (defun inv-mod (a n)
   "Returns: a^-1 (mod n)
    Signals: 'invalid-operation-error if gcd(a, n) != 1"
@@ -29,7 +32,7 @@
 
 (defun div-mod (a b n)
   "Returns: a / b (mod n)"
-  (mul-mod a (inv-mod b n) n))
+  (mul-mod a (ironclad::modular-inverse b n) n))
 
 (defun legendre-symbol (a p)
   "Returns: 1 if a is a quadratic residue (mod p),
