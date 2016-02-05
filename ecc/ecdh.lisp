@@ -14,7 +14,7 @@
 (defclass ECDH-Private-Key (Private-key) ())
 (defclass ECDH-Public-Key (Public-Key Point) ())
 (defclass ECDH-Secret (Point) ())
-(define-composite-octet-reader-functions ECDH-Public-key (key x y))
+(define-composite-integer-reader-functions ECDH-Public-key (key x y))
 
 ;; ECDH Methods
 
@@ -30,7 +30,7 @@
 
 (defmethod ecdh-gen-secret ((ec Curve) (privkey ECDH-Private-Key) (partner-pub ECDH-Public-Key))
   (assert (point-on-curve-p ec partner-pub))
-  (let* ((pkey (ironclad:octets-to-integer (key privkey)))
+  (let* ((pkey (key privkey))
          (point-secret (mul-point ec partner-pub pkey) ))
     (make-instance 'ECDH-Secret
                    :x (x point-secret)

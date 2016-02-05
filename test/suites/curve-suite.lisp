@@ -27,54 +27,40 @@
 (define-test ecc-tests::point-equalp
     (:tags '(internal basic point p17 methods))
   (assert-true (cl-ecc::point-equalp (make-instance 'cl-ecc::Point
-                                             :x (ironclad:integer-to-octets 10)
-                                             :y (ironclad:integer-to-octets 10))
-                              (make-instance 'cl-ecc::Point
-                                             :x (ironclad:integer-to-octets 10)
-                                             :y (ironclad:integer-to-octets 10))))
-  (assert-true (cl-ecc::point-equalp (make-instance 'cl-ecc::Point
-                                             :x 10
-                                             :y (ironclad:integer-to-octets 10))
-                              (make-instance 'cl-ecc::Point
-                                             :x (ironclad:integer-to-octets 10)
-                                             :y "0a")))
-
+                                                    :x 10
+                                                    :y 10)
+                                     (make-instance 'cl-ecc::Point
+                                                    :x 10
+                                                    :y 10)))
   (assert-false (cl-ecc::point-equalp (make-instance 'cl-ecc::Point
-                                               :x (ironclad:integer-to-octets 10)
-                                               :y (ironclad:integer-to-octets 10))
-                                (make-instance 'cl-ecc::Point
-                                               :x (make-array 10 :element-type '(unsigned-byte 8) :initial-element 1)
-                                               :y (ironclad:integer-to-octets 9))))
-  (assert-true (cl-ecc::point-equalp (make-instance 'cl-ecc::Point
-                                             :x 10
-                                             :y (ironclad:integer-to-octets 10))
-                              (make-instance 'cl-ecc::Point
-                                             :x (ironclad:integer-to-octets 10)
-                                             :y "0a"))))
-
+                                                     :x 10
+                                                     :y 10)
+                                      (make-instance 'cl-ecc::Point
+                                                     :x 10
+                                                     :y 9))))
 
 (define-test ecc-tests::valid-curve-p
     (:tags '(internal basic curve p17 methods))
   (assert-error 'simple-error (cl-ecc::valid-curve-p
                                (make-instance 'cl-ecc::Curve
-                                              :a (ironclad:integer-to-octets 10)
-                                              :b (ironclad:integer-to-octets 50)
-                                              :p (ironclad:integer-to-octets 30)
+                                              :a 10
+                                              :b 50
+                                              :p 30
                                               :g (make-instance 'cl-ecc::Point
-                                                                :x (ironclad:integer-to-octets 10)
-                                                                :y (ironclad:integer-to-octets 20))
-                                              :n (ironclad:integer-to-octets 40)
-                                              :h (ironclad:integer-to-octets 1))))
+                                                                :x 10
+                                                                :y 20)
+                                              :n 40
+                                              :h 1)))
   (assert-true (cl-ecc::valid-curve-p
                 (make-instance 'cl-ecc::Curve
-                               :a (ironclad:hex-string-to-byte-array "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFC")
-                               :b (ironclad:hex-string-to-byte-array "64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1")
-                               :p (ironclad:hex-string-to-byte-array "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFF")
+                               :a #xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFC
+                               :b #x64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1
+                               :p #xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFF
                                :g (make-instance 'cl-ecc::Point
-                                                 :x (ironclad:hex-string-to-byte-array "188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012")
-                                                 :y (ironclad:hex-string-to-byte-array "07192b95ffc8da78631011ed6b24cdd573f977a11e794811"))
-                               :n (ironclad:hex-string-to-byte-array "FFFFFFFFFFFFFFFFFFFFFFFF99DEF836146BC9B1B4D22831")
-                               :h (ironclad:hex-string-to-byte-array "01")))))
+                                                 :x #x188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012
+                                                 :y #x07192b95ffc8da78631011ed6b24cdd573f977a11e794811)
+                               :n #xFFFFFFFFFFFFFFFFFFFFFFFF99DEF836146BC9B1B4D22831
+                               :h #x01))))
 (define-test ecc-tests::at-x
     (:tags '(internal basic curve p17 methods))
   (assert-equal '(t t t t t t t t t t t t t t t t t t) (let ((result '())
@@ -178,6 +164,6 @@
          (k 7)
          (sig (ecdsa-gen-sig *p17* msghash bob-priv k)))
     (assert-true (cl-ecc::ecdsa-sig-equalp sig (make-instance 'ECDSA-Signature
-                                                :r (ironclad:integer-to-octets 0)
-                                                :s (ironclad:integer-to-octets 12))))
+                                                :r 0
+                                                :s 12)))
     (assert-true (ecdsa-verify-sig *p17* msghash sig bob-pub))))
