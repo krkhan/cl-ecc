@@ -50,4 +50,4 @@
                      (p 360027784083079948259017962255826129)
                      (sq (cl-ecc::sqrt-mod a p)))
                 sq))
-  (assert-error 'invalid-operation-error (cl-ecc::sqrt-mod 45 6)))
+  (assert-error 'cl-ecc::invalid-operation-error (cl-ecc::sqrt-mod 45 6)))

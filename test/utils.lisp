@@ -1,7 +1,5 @@
 ;;;; utils.lisp
-
 (in-package #:cl-ecc.test)
-
 
 (defun conc-sym-name (prefix end)
   (let ((prefix-s (string prefix))

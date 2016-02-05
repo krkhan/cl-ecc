@@ -56,38 +56,38 @@
          (defparameter ,table (make-hash-table))
 
          (setf (gethash ,(first mulpoint1) ,table)
-               (make-instance 'Point
+               (make-instance 'cl-ecc::Point
                               :x (ironclad:hex-string-to-byte-array
                                   (subseq ,(second mulpoint1) 0 (/ (length ,(second mulpoint1)) 2)))
                               :y (ironclad:hex-string-to-byte-array
                                   (subseq ,(second mulpoint1) (/ (length ,(second mulpoint1)) 2)))))
 
          (setf (gethash ,(first mulpoint2) ,table)
-               (make-instance 'Point
+               (make-instance 'cl-ecc::Point
                               :x (ironclad:hex-string-to-byte-array
                                   (subseq ,(second mulpoint2) 0 (/ (length ,(second mulpoint2)) 2)))
                               :y (ironclad:hex-string-to-byte-array
                                   (subseq ,(second mulpoint2) (/ (length ,(second mulpoint2)) 2)))))
          (setf (gethash ,(first mulpoint3) ,table)
-               (make-instance 'Point
+               (make-instance 'cl-ecc::Point
                               :x (ironclad:hex-string-to-byte-array
                                   (subseq ,(second mulpoint3) 0 (/ (length ,(second mulpoint3)) 2)))
                               :y (ironclad:hex-string-to-byte-array
                                   (subseq ,(second mulpoint3) (/ (length ,(second mulpoint3)) 2)))))
          (setf (gethash ,(first mulpoint4) ,table)
-               (make-instance 'Point
+               (make-instance 'cl-ecc::Point
                               :x (ironclad:hex-string-to-byte-array
                                   (subseq ,(second mulpoint4) 0 (/ (length ,(second mulpoint4)) 2)))
                               :y (ironclad:hex-string-to-byte-array
                                   (subseq ,(second mulpoint4) (/ (length ,(second mulpoint4)) 2)))))
          (setf (gethash ,(first mulpoint5) ,table)
-               (make-instance 'Point
+               (make-instance 'cl-ecc::Point
                               :x (ironclad:hex-string-to-byte-array
                                   (subseq ,(second mulpoint5) 0 (/ (length ,(second mulpoint5)) 2)))
                               :y (ironclad:hex-string-to-byte-array
                                   (subseq ,(second mulpoint5) (/ (length ,(second mulpoint5)) 2)))))
          (setf (gethash ,(first mulpoint6) ,table)
-               (make-instance 'Point
+               (make-instance 'cl-ecc::Point
                               :x (ironclad:hex-string-to-byte-array
                                   (subseq ,(second mulpoint6) 0 (/ (length ,(second mulpoint6)) 2)))
                               :y (ironclad:hex-string-to-byte-array

@@ -26,29 +26,29 @@
 ;; Curve tests
 (define-test ecc-tests::point-equalp
     (:tags '(internal basic point p17 methods))
-  (assert-true (cl-ecc::point-equalp (make-instance 'Point
+  (assert-true (cl-ecc::point-equalp (make-instance 'cl-ecc::Point
                                              :x (ironclad:integer-to-octets 10)
                                              :y (ironclad:integer-to-octets 10))
-                              (make-instance 'Point
+                              (make-instance 'cl-ecc::Point
                                              :x (ironclad:integer-to-octets 10)
                                              :y (ironclad:integer-to-octets 10))))
-  (assert-true (cl-ecc::point-equalp (make-instance 'Point
+  (assert-true (cl-ecc::point-equalp (make-instance 'cl-ecc::Point
                                              :x 10
                                              :y (ironclad:integer-to-octets 10))
-                              (make-instance 'Point
+                              (make-instance 'cl-ecc::Point
                                              :x (ironclad:integer-to-octets 10)
                                              :y "0a")))
 
-  (assert-false (cl-ecc::point-equalp (make-instance 'Point
+  (assert-false (cl-ecc::point-equalp (make-instance 'cl-ecc::Point
                                                :x (ironclad:integer-to-octets 10)
                                                :y (ironclad:integer-to-octets 10))
-                                (make-instance 'Point
+                                (make-instance 'cl-ecc::Point
                                                :x (make-array 10 :element-type '(unsigned-byte 8) :initial-element 1)
                                                :y (ironclad:integer-to-octets 9))))
-  (assert-true (cl-ecc::point-equalp (make-instance 'Point
+  (assert-true (cl-ecc::point-equalp (make-instance 'cl-ecc::Point
                                              :x 10
                                              :y (ironclad:integer-to-octets 10))
-                              (make-instance 'Point
+                              (make-instance 'cl-ecc::Point
                                              :x (ironclad:integer-to-octets 10)
                                              :y "0a"))))
 
@@ -56,21 +56,21 @@
 (define-test ecc-tests::valid-curve-p
     (:tags '(internal basic curve p17 methods))
   (assert-error 'simple-error (cl-ecc::valid-curve-p
-                               (make-instance 'Curve
+                               (make-instance 'cl-ecc::Curve
                                               :a (ironclad:integer-to-octets 10)
                                               :b (ironclad:integer-to-octets 50)
                                               :p (ironclad:integer-to-octets 30)
-                                              :g (make-instance 'Point
+                                              :g (make-instance 'cl-ecc::Point
                                                                 :x (ironclad:integer-to-octets 10)
                                                                 :y (ironclad:integer-to-octets 20))
                                               :n (ironclad:integer-to-octets 40)
                                               :h (ironclad:integer-to-octets 1))))
   (assert-true (cl-ecc::valid-curve-p
-                (make-instance 'Curve
+                (make-instance 'cl-ecc::Curve
                                :a (ironclad:hex-string-to-byte-array "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFC")
                                :b (ironclad:hex-string-to-byte-array "64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1")
                                :p (ironclad:hex-string-to-byte-array "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFF")
-                               :g (make-instance 'Point
+                               :g (make-instance 'cl-ecc::Point
                                                  :x (ironclad:hex-string-to-byte-array "188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012")
                                                  :y (ironclad:hex-string-to-byte-array "07192b95ffc8da78631011ed6b24cdd573f977a11e794811"))
                                :n (ironclad:hex-string-to-byte-array "FFFFFFFFFFFFFFFFFFFFFFFF99DEF836146BC9B1B4D22831")
@@ -88,40 +88,40 @@
 (define-test ecc-tests::point-inverse
     (:tags '(internal basic curve p17 methods))
   (assert-true (cl-ecc::point-equalp
-                   (make-instance 'Point :x 5 :y 16)
+                   (make-instance 'cl-ecc::Point :x 5 :y 16)
                    (let* ((ec *p17*)
-                          (p (make-instance 'Point :x 5 :y 1)))
+                          (p (make-instance 'cl-ecc::Point :x 5 :y 1)))
                      (cl-ecc::point-inverse ec p)))))
 
 (define-test ecc-tests::add-points
     (:tags '(internal basic curve p17 methods))
-  (assert-true (cl-ecc::point-equalp (make-instance 'Point :x 5 :y 1)
-                                     (cl-ecc::add-points *p17* (make-instance 'Point :x 5 :y 1) *inf-point*)))
-  (assert-true (cl-ecc::point-equalp (make-instance 'Point :x 5 :y 1)
-                                     (cl-ecc::add-points *p17* *inf-point* (make-instance 'Point :x 5 :y 1))))
+  (assert-true (cl-ecc::point-equalp (make-instance 'cl-ecc::Point :x 5 :y 1)
+                                     (cl-ecc::add-points *p17* (make-instance 'cl-ecc::Point :x 5 :y 1) *inf-point*)))
+  (assert-true (cl-ecc::point-equalp (make-instance 'cl-ecc::Point :x 5 :y 1)
+                                     (cl-ecc::add-points *p17* *inf-point* (make-instance 'cl-ecc::Point :x 5 :y 1))))
 
   (assert-true (cl-ecc::point-equalp *inf-point*
-                                     (let ((p1 (make-instance 'Point :x 5 :y 1)))
+                                     (let ((p1 (make-instance 'cl-ecc::Point :x 5 :y 1)))
                                        (cl-ecc::add-points *p17* p1 (cl-ecc::point-inverse *p17* p1)))))
 
-  (assert-true (cl-ecc::point-equalp (make-instance 'Point :x 6 :y 3)
-                                     (let ((p1 (make-instance 'Point :x 5 :y 1))
-                                           (p2 (make-instance 'Point :x 5 :y 1)))
+  (assert-true (cl-ecc::point-equalp (make-instance 'cl-ecc::Point :x 6 :y 3)
+                                     (let ((p1 (make-instance 'cl-ecc::Point :x 5 :y 1))
+                                           (p2 (make-instance 'cl-ecc::Point :x 5 :y 1)))
                                        (cl-ecc::add-points *p17* p1 p2))))
 
-  (assert-true (cl-ecc::point-equalp (make-instance 'Point :x 3 :y 1)
-                                     (let ((p1 (make-instance 'Point :x 10 :y 11))
-                                           (p2 (make-instance 'Point :x 0 :y 6)))
+  (assert-true (cl-ecc::point-equalp (make-instance 'cl-ecc::Point :x 3 :y 1)
+                                     (let ((p1 (make-instance 'cl-ecc::Point :x 10 :y 11))
+                                           (p2 (make-instance 'cl-ecc::Point :x 0 :y 6)))
                                        (cl-ecc::add-points *p17* p1 p2))))
-  (assert-true (cl-ecc::point-equalp (make-instance 'Point :x 13 :y 10)
-                                     (let ((p1 (make-instance 'Point :x 9 :y 16))
-                                           (p2 (make-instance 'Point :x 16 :y 13)))
+  (assert-true (cl-ecc::point-equalp (make-instance 'cl-ecc::Point :x 13 :y 10)
+                                     (let ((p1 (make-instance 'cl-ecc::Point :x 9 :y 16))
+                                           (p2 (make-instance 'cl-ecc::Point :x 16 :y 13)))
                                        (cl-ecc::add-points *p17* p1 p2))))
 
   (assert-true (let* ((ec *p17*)
                       (cur-point (cl-ecc::g ec)))
                  (dolist (ref-point-coords p17-points t)
-                   (assert-true (cl-ecc::point-equalp cur-point (make-instance 'Point
+                   (assert-true (cl-ecc::point-equalp cur-point (make-instance 'cl-ecc::Point
                                                                                :x (first ref-point-coords)
                                                                                :y (second ref-point-coords))))
                    (setf cur-point (cl-ecc::add-points ec (cl-ecc::g ec) cur-point))
@@ -138,7 +138,7 @@
                    (p-result (cl-ecc::mul-point *p17* g i)))
                (assert-true (cl-ecc::point-equalp
                                 p-result
-                                (make-instance 'Point
+                                (make-instance 'cl-ecc::Point
                                                :x (first ref-point-coords)
                                                :y (second ref-point-coords))))))))
 
@@ -157,7 +157,7 @@
          (bob-pub (ecdh-gen-pub *p17* bob-priv))
          (alice-secret (ecdh-gen-secret *p17* alice-priv bob-pub))
          (bob-secret (ecdh-gen-secret *p17* bob-priv alice-pub)))
-    (assert-true (cl-ecc::point-equalp alice-secret (make-instance 'Point :x 6 :y 14)))
+    (assert-true (cl-ecc::point-equalp alice-secret (make-instance 'cl-ecc::Point :x 6 :y 14)))
     (assert-true (cl-ecc::point-equalp alice-secret bob-secret))))
 
 (define-test ecc-tests::elgamal-p17

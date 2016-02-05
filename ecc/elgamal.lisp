@@ -3,51 +3,41 @@
 
 (in-package #:cl-ecc)
 
-;; Elgamal generics
-
+;; Generics
 (defgeneric elgamal-encrypt (curve plaintext partner-pub my-priv)
   (:documentation "Returns: 'ElGamalMessage"))
 (defgeneric elgamal-decrypt (curve ElGamalMessage my-priv)
   (:documentation "Returns: a 'Point."))
 
-;; Elgamal classes
-
+;; Classes
 (defclass ElGamalMessage ()
   ((x :initarg :x
-      :type 'ECDSA-Public-Key)
+      :reader x
+      :type ECDSA-Public-Key)
    (y :initarg :y
-      :type 'Elgamalciphertext)))
-
-(define-custom-octet-reader-functions ElGamalMessage x y)
-
+      :reader y
+      :type Elgamalciphertext)))
 (defclass ElGamalPlaintext (Point)())
 (defclass ElGamalCiphertext (Point) ())
 
-;; ElGamal methods
-
+;; Methods
 (defmethod elgamal-encrypt ((c Curve) (plaintext ELGamalPlaintext)
                             (partner-pub ECDH-Public-Key) (my-priv ECDH-Private-Key))
-
   (assert (point-on-curve-p c plaintext))
   (assert (point-on-curve-p c partner-pub))
-  (let ((my-pub (ecdh-gen-pub c my-priv)))
-    (make-instance
-     'ElGamalMessage
-     :x my-pub
-     :y (change-class (add-points c
-                                  plaintext
-                                  (ecdh-gen-secret c my-priv partner-pub))
-                      'ElGamalCiphertext))))
+  (let* ((my-pub (ecdh-gen-pub c my-priv))
+         (secret-point (ecdh-gen-secret c my-priv partner-pub))
+         (ciphertext-point (add-points c plaintext secret-point))
+         (ciphertext-instance (make-instance 'ElGamalCiphertext
+                                             :x (x ciphertext-point)
+                                             :y (y ciphertext-point))))
+    (make-instance 'ElGamalMessage :x my-pub :y ciphertext-instance)))
 
-(defmethod elgamal-decrypt ((c Curve) (msg ElGamalMessage) (my-priv ECDH-Private-Key))
-  (let ((partner-pub (x msg))
-        (ciphertext (y msg)))
-    (assert (point-on-curve-p c partner-pub))
-    (assert (point-on-curve-p c ciphertext))
-    (change-class (add-points c
-                              ciphertext
-                              (point-inverse c
-                                             (ecdh-gen-secret c
-                                                              my-priv
-                                                              partner-pub)))
-                  'ElGamalPlaintext)))
+(defmethod elgamal-decrypt ((ec Curve) (msg ElGamalMessage) (my-priv ECDH-Private-Key))
+  (let* ((partner-pub (x msg))
+         (ciphertext (y msg))
+         (secret-point (ecdh-gen-secret ec my-priv partner-pub))
+         (plaintext (add-points ec ciphertext (point-inverse ec secret-point))))
+    (assert (point-on-curve-p ec partner-pub))
+    (assert (point-on-curve-p ec ciphertext))
+    (make-instance 'ElGamalPlaintext :x (x plaintext) :y (y plaintext))))

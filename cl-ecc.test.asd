@@ -14,19 +14,21 @@
                         :components
                         ((:file "package")
                          (:module "ecc"
+                                  :pathname ""
                                   :serial t
                                   :components
                                   ((:file "utils")
                                    (:file "model")))
-                         (:module "ecc/suites"
+                         (:module "suites"
                                   :serial t
                                   :components
                                   ((:file "mod-math-suite")
                                    (:file "init-suite")
                                    (:file "curve-suite")
                                    (:file "print-suite")))
-                         (:module "ecc/test-vectors"
+                         (:module "test-vectors"
                                   :serial t
                                   :components
                                   ((:file "secp192r1-test")
-                                   (:file "secp256k1-test")))))))
+                                   (:file "secp256k1-test")))
+                         (:file "cl-ecc.test" :depends-on (ecc suites test-vectors))))))

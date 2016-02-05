@@ -23,18 +23,7 @@
    ;; reader functions
    :x :y :key :version-byte :r :s :a :b :p :g :n :h
 
-   ;; reader macros
-   :define-slot-to-octet-vector-parser
-   :define-custom-octet-reader-functions
-   :define-custom-composite-octet-reader-functions
-   :define-slot-type-validator
-
    ;; classes
-   :Key
-   :Point
-   :Curve
-   :Private-Key
-   :Public-Key
    :ECDH-Private-Key
    :ECDH-Public-Key
    :ECDH-Secret
@@ -53,13 +42,26 @@
    :*inf-point*
 
    ;; Types
-   :octet-vector
+   :octet-vector))
 
-   ;; Errors
-   :invalid-operation-error
-   :invalid-type-error))
+  ;;;; internal (not to be exported)
 
-  ;;  ;;;; internal (not to be exported)
+  ;; Errors
+  ;; :invalid-operation-error
+  ;; :invalid-type-error
+
+  ;; reader macros
+  ;; :define-slot-to-octet-vector-parser
+  ;; :define-composite-octet-reader-functions
+  ;; :define-slot-type-validator
+
+  ;; classes
+  ;; :Key
+  ;; :Point
+  ;; :Curve
+  ;; :Private-Key
+  ;; :Public-Key
+
 
 
   ;;  ;; math-mod
