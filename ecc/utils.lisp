@@ -5,18 +5,9 @@
 (defmacro conc-to-symbol (&rest args)
   `(intern (concatenate 'string ,@(mapcar #'(lambda (x) `(string ,x))  args))))
 
-;; Octet macros
-(defmacro with-octets-to-integer ((&rest vars) &body body)
-  `(progn ,@body))
-(defmacro with-octets-to-hex-string ((&rest vars) &body body)
-  `(let ,(mapcar #'(lambda (x) `(,x (format nil "~x" ,x))) vars)
-     (declare (type integer ,@vars))
-     ,@body))
-
 ;; Number functions
 (defun integer-byte-size (integer)
   (ceiling (integer-length integer) 8))
-
 (defun concatenate-integers (&rest args)
   (apply #'(lambda (y x) (+ x (* (expt 10 (length (format nil "~d" x))) y))) args))
 (defun subseq-integer (integer start &optional end)
@@ -36,12 +27,6 @@
       (setf hstring (concatenate 'string "0" hstring))
       (incf string-length))
     hstring))
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defun octet-vector (length)
-    (make-array length
-                :element-type '(unsigned-byte 8)
-                :initial-element 0)))
 
 ;; Error macros
 (defmacro define-ecc-error (error-name)

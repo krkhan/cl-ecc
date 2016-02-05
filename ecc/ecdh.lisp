@@ -21,12 +21,11 @@
 (defmethod ecdh-gen-pub ((ec Curve) (privkey ECDH-Private-Key))
   (with-accessors ((pkey key)) privkey
     (with-accessors ((n n) (g g)) ec
-      (with-octets-to-integer (pkey n)
         (let* ((point-key (mul-point ec g pkey)))
           (assert (and (< 0 pkey) (< pkey n)))
           (make-instance 'ECDH-Public-Key
                          :x (x point-key)
-                         :y (y point-key)))))))
+                         :y (y point-key))))))
 
 (defmethod ecdh-gen-secret ((ec Curve) (privkey ECDH-Private-Key) (partner-pub ECDH-Public-Key))
   (assert (point-on-curve-p ec partner-pub))
