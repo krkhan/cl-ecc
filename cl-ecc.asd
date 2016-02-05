@@ -5,11 +5,10 @@
 (asdf:defsystem #:cl-ecc
   :version "0.1.0"
   :description "Describe cl-ecc here"
-  :author "krkhan"
+  :author "Chream"
   :license "Specify license here"
   :depends-on (#:ironclad
                #:iterate
-               #:com.gigamonkeys.macro-utilities
                #:alexandria)
   :serial t
   :components ((:module "ecc"
