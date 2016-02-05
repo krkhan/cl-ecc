@@ -9,7 +9,7 @@
 (defun integer-byte-size (integer)
   (ceiling (integer-length integer) 8))
 (defun concatenate-integers (&rest args)
-  (apply #'(lambda (y x) (+ x (* (expt 10 (length (format nil "~d" x))) y))) args))
+  (reduce #'(lambda (y x) (+ x (* (expt 10 (length (format nil "~d" x))) y))) args))
 (defun subseq-integer (integer start &optional end)
   (parse-integer (subseq (format nil "~d" integer) start end)))
 (defun integer-as-sequence-split (int)
