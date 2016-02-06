@@ -27,7 +27,13 @@
 (defclass ECDSA-Public-Key (Public-Key Point)
   ((version-byte :initarg :version-byte :reader version-byte :type integer
                  :initform (error 'unbound-slot :msg ":version-byte must be initialized"))))
-(define-composite-integer-reader-functions ECDSA-Public-key (key version-byte x y))
+
+;; Key reader function
+(defmethod key ((pubkey ECDSA-Public-Key))
+  (let ((vb (ironclad:integer-to-octets (version-byte pubkey) :n-bits 8))
+        (x (ironclad:integer-to-octets (x pubkey) :n-bits (* 8 (/ (bytes pubkey) 2))))
+        (y (ironclad:integer-to-octets (y pubkey) :n-bits (* 8 (/ (bytes pubkey) 2)))))
+    (ironclad:octets-to-integer (concatenate 'octet-vector vb x y))))
 
 ;; ECDSA methods
 (defmethod ecdsa-sig-equalp ((sig1 ECDSA-Signature) (sig2 ECDSA-Signature))
@@ -71,4 +77,5 @@
           (make-instance 'ECDSA-Public-Key
                          :x (x point-key)
                          :y (y point-key)
-                         :version-byte version-byte)))))
+                         :version-byte version-byte
+                         :bytes (+ 1 (* 2 (bytes (g ec)))))))))
