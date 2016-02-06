@@ -37,3 +37,11 @@
          ((msg :initarg :msg :reader error-msg)))
        (defmethod print-object ((,object ,error-name) ,out)
          (format ,out "~a" (error-msg ,object))))))
+
+(defun put-keys-in-hash-table (filename)
+  (with-open-file (stream filename)
+    (do ((result (make-hash-table))
+         (priv (read-line stream nil) (read-line stream nil 'eof))
+         (pub (read-line stream nil) (read-line stream nil 'eof)))
+        ((or (eq 'eof priv) (eq 'eof pub)) result)
+      (setf (gethash (parse-integer priv :radix 16) result) (parse-integer pub :radix 16)))))

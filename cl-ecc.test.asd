@@ -5,8 +5,8 @@
                #:alexandria
                #:iterate
                #:ironclad
-               #:com.gigamonkeys.test-framework
-               #:lisp-unit2)
+               #:lisp-unit2
+               #:external-program)
   :serial t
   :components ((:module "core"
                         :pathname "test"
@@ -25,7 +25,8 @@
                                   ((:file "mod-math-suite")
                                    (:file "init-suite")
                                    (:file "curve-suite")
-                                   (:file "print-suite")))
+                                   (:file "print-suite")
+                                   (:file "ecdsa-suite")))
                          (:module "test-vectors"
                                   :serial t
                                   :components

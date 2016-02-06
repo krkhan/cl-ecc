@@ -31,6 +31,7 @@
                                                      "model-macros"))
                          (:file "curve-parameters" :depends-on ("model"))
                          (:file "printing" :depends-on ("model"))
+                         (:file "constants" :depends-on ("ecdh" "elgamal" "ecdsa"))
                          (:file "ecc" :depends-on ("ecdh"
                                                    "elgamal"
                                                    "ecdsa")))))
