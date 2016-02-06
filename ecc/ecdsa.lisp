@@ -31,8 +31,8 @@
 ;; Key reader function
 (defmethod key ((pubkey ECDSA-Public-Key))
   (let ((vb (ironclad:integer-to-octets (version-byte pubkey) :n-bits 8))
-        (x (ironclad:integer-to-octets (x pubkey) :n-bits (* 8 (/ (bytes pubkey) 2))))
-        (y (ironclad:integer-to-octets (y pubkey) :n-bits (* 8 (/ (bytes pubkey) 2)))))
+        (x (ironclad:integer-to-octets (x pubkey) :n-bits (* 8 (floor (bytes pubkey) 2))))
+        (y (ironclad:integer-to-octets (y pubkey) :n-bits (* 8 (floor (bytes pubkey) 2)))))
     (ironclad:octets-to-integer (concatenate 'octet-vector vb x y))))
 
 ;; ECDSA methods
