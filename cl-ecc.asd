@@ -8,8 +8,9 @@
   :author "Chream"
   :license "Specify license here"
   :depends-on (#:ironclad
+               #:alexandria
                #:iterate
-               #:alexandria)
+               #:asn.1)
   :serial t
   :components ((:module "ecc"
                         :serial t

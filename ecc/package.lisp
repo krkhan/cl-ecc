@@ -19,9 +19,11 @@
    :ecdsa-verify-sig
    :ecdsa-sig-equalp
    :ecdsa-gen-pub
-
+   :ecdsa-gen-priv
+   :ecdsa-ber-encode
+   :ecdsa-ber-decode
    ;; reader functions
-   :x :y :key :version-byte :r :s :a :b :p :g :n :h
+   :x :y :key :version-byte :r :s :a :b :p :g :n :h :bytes
 
    ;; classes
    :ECDH-Private-Key

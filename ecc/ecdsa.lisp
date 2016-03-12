@@ -10,6 +10,16 @@
   (:documentation "Returns: Predicate. Test if signature is valid"))
 (defgeneric ecdsa-gen-pub (curve priv &key version-byte)
   (:documentation "Returns: ECDSA-Public-Key"))
+(defgeneric ecdsa-ber-encode (signature)
+  (:documentation "Generic Function.
+                   ARGLIST: 'ECDSA-Signature.
+                   RETURNS: '(simple-array '(unsigned-byte (8) (*)).
+                   Returns the der encoded signature."))
+(defgeneric ecdsa-ber-decode (sequence)
+  (:documentation "Generic Function.
+                   ARGLIST: 'vector.
+                   RETURNS: 'ECDSA-Signature.
+                   Returns an 'ECDSA-Signature from a vector sequence."))
 
 ;; ECDSA Classes
 (defclass ECDSA-Private-Key (Private-Key) ())
@@ -68,6 +78,16 @@
             (assert (= (mod x n) r))
             t)))))
 
+(defun ecdsa-gen-priv ()
+  "Function.
+   ARGLIST: None.
+   RETURNS: 'ECDSA-Private-Key.
+   Generates a new random 256 bit private key."
+  (make-instance 'ECDSA-Private-key :key (ironclad:octets-to-integer
+                                          (ironclad:digest-sequence
+                                           :sha256
+                                           (ironclad:integer-to-octets (random (expt 2 256)))))))
+
 (defmethod ecdsa-gen-pub ((ec Curve) (priv ECDSA-Private-Key) &key (version-byte 04))
   "Returns: ECDSA-Public-Key"
   (with-accessors ((pkey key)) priv
@@ -79,3 +99,17 @@
                          :y (y point-key)
                          :version-byte version-byte
                          :bytes (+ 1 (* 2 (bytes (g ec)))))))))
+
+(defmethod ecdsa-ber-encode ((sig ECDSA-Signature))
+  (let ((r (r sig))
+        (s (s sig)))
+    (let ((der-vector (asn.1:ber-encode (list r s))))
+      (make-array (length der-vector)
+                  :element-type '(unsigned-byte 8)
+                  :initial-contents (coerce der-vector 'list)))))
+
+(defmethod ecdsa-ber-decode ((ber-seq sequence))
+  (destructuring-bind (r s) (coerce (asn.1:ber-decode ber-seq) 'list)
+    (make-instance 'ECDSA-Signature
+                   :r r
+                   :s s)))
