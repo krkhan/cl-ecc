@@ -75,8 +75,9 @@
                  (u2 (mul-mod w r n))
                  (pt (add-points ec (mul-point ec g u1) (mul-point ec pub u2)))
                  (x (x pt)))
-            (assert (= (mod x n) r))
-            t)))))
+            (if (= (mod x n) r) ;; FIXME. Add error condition.
+                t
+                nil))))))
 
 (defun ecdsa-gen-priv ()
   "Function.
